@@ -16,12 +16,14 @@ features = sparse_to_tuple(features)
 # node_objects:每个node在dictionary里的key, 一共有28491个node, key range 0: 28490
 # all_node_num = 28491
 # class_num = 3, movieLens是三分类，分成三种genre
-
-# network_objects
-# all_y_index, all_y_label
-# pool_y_index, test_y_index
-# new_adj, old_adj
-# features
+# network_objects: list of adjacency matrix, 此处为movie_director, movie_tag, movie_writer, user_movie_rating
+# all_y_index: list of node index, length is 3672
+# all_y_label: ndarray, shape num_class * num_node, which is 3 * 3672
+# pool_y_index, test_y_index: pool_y_index is train_y_index(node index), shape 10 * 1836, similar for test_y_index, same size
+# new_adj, old_adj: 四个adjacency matrix合在一起, old_adj都是01, new_adj有float是rating
+# features: tuple, first value is 28491 * 2 ndarray, repeat each node twice, second is np.ones(node_num)
+# importance: ndarray, 28491 * 1, represents importance of each node, importance具体怎么算看Active_select 2
+# degree: ndarray, 28491 * 1, represents degree of each node
 
 # num_train_nodes = len(pool_y_index[0])
 # batch = 20
@@ -112,3 +114,5 @@ features = sparse_to_tuple(features)
 #         adj = network_objects[index]
 #         support.append(preprocess_adj(adj))
 #     num_supports = len(support)
+
+
