@@ -30,8 +30,9 @@ def parse_edge_index_file(filename):
             col_index = int(str_temp[1].strip())
             old_row.append(row_index)
             old_col.append(col_index)
-            old_data.append(int(1))
+            old_data.append(int(1))            
             if len(str_temp) > 2:
+                print("filename: ", filename, "\tline_index: ", index, "\tstr_temp: ", str_temp)
                 new_data.append(float(str_temp[2].strip()))
             else:
                 new_data.append(1)
@@ -129,6 +130,7 @@ def load_data(dataset_str):
     train_y_index = []
     test_y_index = []
     all_node_num = 0
+    # append all nodes in node_objects
     for index in range(len(node_index)):
         idx_reorder = parse_node_index_file("data/{}/{}".format(dataset_str, node_index[index]))
         all_node_num = all_node_num + len(idx_reorder)
@@ -138,8 +140,12 @@ def load_data(dataset_str):
     all_new_data = []
     all_old_data = []
     feature = sp.csr_matrix(sp.eye(all_node_num))
+    # edge_index = ["movie_director.txt", "movie_tag.txt", "movie_writer.txt", "user_movie_rating.txt"]
+    # 只针对movie rating 这种会有new data, old data就是两个node之间是否有edge，有为1的matrix
+    # old_row记录row number, old_column记录column number, old data记录1，new data如果两者有rating为rating否则为1
     for index in range(len(edge_index)):
         old_row, old_col, new_data, old_data = parse_edge_index_file("data/{}/{}".format(dataset_str, edge_index[index]))
+        # adjacency matrix 
         adj = sp.csr_matrix((new_data, (old_row, old_col)), shape=(all_node_num, all_node_num))
         network_objects.append(adj)
         all_row = all_row + old_row
