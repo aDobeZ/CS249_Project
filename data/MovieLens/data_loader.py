@@ -6,6 +6,50 @@ import pickle as pkl
 import numpy as np
 import random
 
+def parse_edge_index_file(filename):
+    """Parse edge index file."""
+    with open(filename, 'r') as file_to_read:
+        reader = file_to_read.read().splitlines()
+        src = []
+        dst = []
+    for index in range(3, len(reader)):
+        line = reader[index]
+        str_temp = line.strip().split("\t")
+        row_index = int(str_temp[0].strip())
+        col_index = int(str_temp[1].strip())
+        src.append(row_index)
+        dst.append(col_index)
+    return src, dst
+
+
+def parse_label_index_file(filename):
+    """Parse label index file."""
+    with open(filename, 'r') as file_to_read:
+        reader = file_to_read.read().splitlines()
+    node_index = []
+    label = []
+    label_list = []
+    label_list_new = []
+    count = 0
+    for index in range(len(reader)):
+        line = reader[index]
+        str_temp = line.strip().split("\t")
+        node_index.append(int(str_temp[0].strip()))
+        label_temp = int(str_temp[1].strip())
+        label.append(label_temp)
+        if label_temp not in label_list:
+            label_list.append(label_temp)
+            label_list_new.append(count)
+            count = count + 1
+    class_num = len(label_list)
+    label_array = np.zeros((len(label), class_num))
+    for index in range(len(label)):
+        class_label = label[index]
+        idx = label_list.index(class_label)
+        class_label_new = label_list_new[idx]
+        label_array[index][class_label_new] = 1
+    return node_index, label_array, class_num
+
 # Split data into train/eval/test
 def split_data(hg, etype_name):
     src, dst = hg.edges(etype=etype_name)
@@ -49,155 +93,32 @@ def process_movielens(root_path):
         print('Can not find movielens in {}, please download the dataset first.'.format(data_path))
 
     #Construct graph from raw data.
-    # movie_genre
-    movie_genre_src=[]
-    movie_genre_dst=[]
-    with open(os.path.join(data_path, 'movie_genre.dat')) as fin:
-        for line in fin.readlines():
-            _line = line.strip().split('\t')
-            movie, genre = int(_line[0]), int(_line[1])
-            movie_genre_src.append(movie)
-            movie_genre_dst.append(genre)
+    # movie_director
+    movie_director_src, movie_director_dst = parse_edge_index_file(os.path.join(data_path, 'movie_director.txt'))
 
     # user_movie
-    user_movie_src=[]
-    user_movie_dst=[]
-    with open(os.path.join(data_path, 'user_movie.dat')) as fin:
-        for line in fin.readlines():
-            _line = line.strip().split('\t')
-            user, item, rate = int(_line[0]), int(_line[1]), int(_line[2])
-            if rate > 3:
-                user_movie_src.append(user)
-                user_movie_dst.append(item)
+    user_movie_src, user_movie_dst = parse_edge_index_file(os.path.join(data_path, 'user_movie_rating.txt'))
 
-    # user_occupation
-    user_occupation_src=[]
-    user_occupation_dst=[]
-    with open(os.path.join(data_path, 'user_occupation.dat')) as fin:
-        for line in fin.readlines():
-            _line = line.strip().split('\t')
-            user, occupation = int(_line[0]), int(_line[1])
-            user_occupation_src.append(user)
-            user_occupation_dst.append(occupation)
+    # movie_tag
+    movie_tag_src, movie_tag_dst = parse_edge_index_file(os.path.join(data_path, 'movie_tag.txt'))
 
-    # user_age
-    user_age_src=[]
-    user_age_dst=[]
-    with open(os.path.join(data_path, 'user_age.dat')) as fin:
-        for line in fin.readlines():
-            _line = line.strip().split('\t')
-            user, age = int(_line[0]), int(_line[1])
-            user_age_src.append(user)
-            user_age_dst.append(age)
+    # movie_writer
+    movie_writer_src, movie_writer_dst = parse_edge_index_file(os.path.join(data_path, 'movie_writer.txt'))
 
     #build graph
     hg = dgl.heterograph({
-        ('movie', 'mg', 'genre') : (movie_genre_src, movie_genre_dst),
-        ('genre', 'gm', 'movie') : (movie_genre_dst, movie_genre_src),
+        ('movie', 'md', 'director') : (movie_director_src, movie_director_dst),
+        ('director', 'dm', 'movie') : (movie_director_dst, movie_director_src),
         ('user', 'um', 'movie') : (user_movie_src, user_movie_dst),
         ('movie', 'mu', 'user') : (user_movie_dst, user_movie_src),
-        ('user', 'uo', 'occupation') : (user_occupation_src, user_occupation_dst), 
-        ('occupation', 'ou', 'user') : (user_occupation_dst, user_occupation_src),
-        ('user', 'ua', 'age') : (user_age_src, user_age_dst),
-        ('age', 'au', 'user') : (user_age_dst, user_age_src)})
+        ('movie', 'mt', 'tag') : (movie_tag_src, movie_tag_dst), 
+        ('tag', 'tm', 'movie') : (movie_tag_dst, movie_tag_src),
+        ('movie', 'ua', 'writer') : (movie_writer_src, movie_writer_dst),
+        ('writer', 'au', 'movie') : (movie_writer_dst, movie_writer_src)})
 
     print("Graph constructed.")
 
     # Split data into train/eval/test
     train_data, eval_data, test_data = split_data(hg, 'um')
 
-    #delete the positive edges in eval/test data in the original graph
-    train_pos = np.nonzero(train_data[:,2])
-    train_pos_idx = train_pos[0]
-    user_movie_src_processed = train_data[train_pos_idx, 0]
-    user_movie_dst_processed = train_data[train_pos_idx, 1]
-    edges_dict = {
-        ('movie', 'mg', 'genre') : (movie_genre_src, movie_genre_dst),
-        ('genre', 'gm', 'movie') : (movie_genre_dst, movie_genre_src),
-        ('user', 'um', 'movie') : (user_movie_src_processed, user_movie_dst_processed),
-        ('movie', 'mu', 'user') : (user_movie_dst_processed, user_movie_src_processed),
-        ('user', 'uo', 'occupation') : (user_occupation_src, user_occupation_dst), 
-        ('occupation', 'ou', 'user') : (user_occupation_dst, user_occupation_src),
-        ('user', 'ua', 'age') : (user_age_src, user_age_dst),
-        ('age', 'au', 'user') : (user_age_dst, user_age_src)
-    }
-    nodes_dict = {
-        'user': hg.num_nodes('user'),
-        'movie': hg.num_nodes('movie'),
-        'genre': hg.num_nodes('genre'),
-        'occupation': hg.num_nodes('occupation'),
-        'age': hg.num_nodes('age'),
-    }
-    hg_processed = dgl.heterograph(data_dict = edges_dict, num_nodes_dict = nodes_dict)
-    print("Graph processed.")
-
-    #save the processed data
-    with open(os.path.join(root_path, 'movielens_hg.pkl'), 'wb') as file: 
-        pkl.dump(hg_processed, file)
-    with open(os.path.join(root_path, 'movielens_train.pkl'), 'wb') as file: 
-        pkl.dump(train_data, file)
-    with open(os.path.join(root_path, 'movielens_test.pkl'), 'wb') as file: 
-        pkl.dump(test_data, file)
-    with open(os.path.join(root_path, 'movielens_eval.pkl'), 'wb') as file: 
-        pkl.dump(eval_data, file)
-
-    return hg_processed, train_data, eval_data, test_data
-
-class MyDataset(Dataset):
-
-    def __init__(self, triple):
-
-        self.triple = triple
-        self.len = self.triple.shape[0]
-    
-    def __getitem__(self, index):
-        return self.triple[index, 0], self.triple[index, 1], self.triple[index, 2].float()
-
-    def __len__(self):
-        return self.len
-
-def load_data(dataset, batch_size=128, num_workers = 10, root_path = './data'):
-    if (os.path.exists(os.path.join(root_path, dataset+'_train.pkl'))):
-        g_file = open(os.path.join(root_path, dataset+'_hg.pkl'), 'rb')
-        hg = pkl.load(g_file)
-        g_file.close()
-        train_set_file = open(os.path.join(root_path, dataset+'_train.pkl'), 'rb')
-        train_set = pkl.load(train_set_file)
-        train_set_file.close()
-        test_set_file = open(os.path.join(root_path, dataset+'_test.pkl'), 'rb')
-        test_set = pkl.load(test_set_file)
-        test_set_file.close()
-        eval_set_file = open(os.path.join(root_path, dataset+'_eval.pkl'), 'rb')
-        eval_set = pkl.load(eval_set_file)
-        eval_set_file.close()
-    else: 
-        if dataset == 'movielens':
-            hg, train_set, eval_set, test_set = process_movielens(root_path)
-        else:
-            print('Available datasets: movielens, amazon.')
-            raise NotImplementedError
-
-    if dataset == 'movielens':
-        meta_paths = {
-            'user': [['um', 'mu']], 
-            'movie': [['mu', 'um'], ['mg', 'gm']]
-        }
-        user_key = 'user'
-        item_key = 'movie'
-    else:
-        print('Available datasets: movielens, amazon.')
-        raise NotImplementedError
-    
-    train_set = torch.Tensor(train_set).long()
-    eval_set = torch.Tensor(eval_set).long()
-    test_set = torch.Tensor(test_set).long()
-    
-    train_set = MyDataset(train_set)
-    train_loader= DataLoader(dataset=train_set, batch_size = batch_size, shuffle=True, num_workers = num_workers)
-    eval_set = MyDataset(eval_set)
-    eval_loader= DataLoader(dataset=eval_set, batch_size = batch_size, shuffle=True, num_workers = num_workers)
-    test_set = MyDataset(test_set)
-    test_loader= DataLoader(dataset=test_set, batch_size = batch_size, shuffle=True, num_workers = num_workers)
-
-    return hg, train_loader, eval_loader, test_loader, meta_paths, user_key, item_key
-    
+    return hg, train_data, eval_data, test_data
