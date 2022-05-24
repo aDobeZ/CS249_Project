@@ -39,7 +39,7 @@ def parse_label_index_file(filename):
             label_list_new.append(count)
             count = count + 1
     class_num = len(label_list)
-    label_array = np.zeros((len(label), class_num))
+    label_array = np.zeros((len(label), class_num), dtype=int)
     for index in range(len(label)):
         class_label = label[index]
         idx = label_list.index(class_label)
@@ -54,7 +54,7 @@ def parse_set_split_file(filename):
     """
     indices = []
     for index in np_indices:
-        indices.append(th.nonzero(index, as_tuple=False).squeeze())
+        indices.append(th.nonzero(th.from_numpy(index), as_tuple=False).squeeze())
     return indices
 
 def process_movielens(root_path):
@@ -83,7 +83,7 @@ def process_movielens(root_path):
             A list of test_index in tensor format. Each tensor acts like test_index in entity_classify.py
         """
 
-    data_path = os.path.join(root_path, 'Movielens')
+    data_path = os.path.join(root_path, 'MovieLens')
     if not (os.path.exists(data_path)):
         print('Can not find movielens in {}, please download the dataset first.'.format(data_path))
 
