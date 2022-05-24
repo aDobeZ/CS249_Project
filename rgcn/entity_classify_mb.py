@@ -13,6 +13,12 @@ import dgl
 from dgl.data.rdf import AIFBDataset, MUTAGDataset, BGSDataset, AMDataset
 from model import EntityClassify, RelGraphEmbed
 
+from os.path import dirname, abspath, join
+import sys
+DATA_PATH = join(dirname(dirname(abspath(__file__))), "data")
+sys.path.insert(0, join(DATA_PATH, 'MovieLens'))
+from data_loader import process_movielens as movielens_loader
+
 def extract_embed(node_embed, input_nodes):
     emb = {}
     for ntype, nid in input_nodes.items():
@@ -48,6 +54,7 @@ def main(args):
         device = 'cuda:%d' % args.gpu
 
     # load graph data
+    movielens_flag = False
     if args.dataset == 'aifb':
         dataset = AIFBDataset()
     elif args.dataset == 'mutag':
@@ -56,17 +63,31 @@ def main(args):
         dataset = BGSDataset()
     elif args.dataset == 'am':
         dataset = AMDataset()
+    elif args.dataset == 'movielens':
+        movielens_flag = True
     else:
         raise ValueError()
 
-    g = dataset[0]
-    category = dataset.predict_category
-    num_classes = dataset.num_classes
-    train_mask = g.nodes[category].data.pop('train_mask')
-    test_mask = g.nodes[category].data.pop('test_mask')
-    train_idx = th.nonzero(train_mask, as_tuple=False).squeeze()
-    test_idx = th.nonzero(test_mask, as_tuple=False).squeeze()
-    labels = g.nodes[category].data.pop('labels')
+    if not movielens_flag:
+        g = dataset[0]
+        category = dataset.predict_category
+        num_classes = dataset.num_classes
+        train_mask = g.nodes[category].data.pop('train_mask')
+        test_mask = g.nodes[category].data.pop('test_mask')
+        train_idx = th.nonzero(train_mask, as_tuple=False).squeeze()
+        test_idx = th.nonzero(test_mask, as_tuple=False).squeeze()
+        labels = g.nodes[category].data.pop('labels')
+    else:
+        # To support movielens dataset
+        g, all_y_index, all_y_label, train_y_index, test_y_index = movielens_loader(DATA_PATH)
+        category = "movie"
+        num_classes = 3
+        train_idx = th.from_numpy(np.array(train_y_index[0]))
+        test_idx = th.from_numpy(np.array(test_y_index[0]))
+        labels = th.from_numpy(all_y_label.T[0])
+        # print(len(train_y_index[2]))
+        # print(test_idx)
+        # print(labels.shape)
 
     # split dataset into train, validate, test
     if args.validation:
