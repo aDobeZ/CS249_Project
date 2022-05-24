@@ -17,6 +17,17 @@ DATA_PATH = join(dirname(dirname(abspath(__file__))), "data")
 sys.path.insert(0, join(DATA_PATH, 'MovieLens'))
 from data_loader import process_movielens as movielens_loader
 
+def process_all_y_label(label):
+    result = []
+    for i in label:
+        if (i[0] == 1):
+            result.append(0)
+        elif (i[1] == 1):
+            result.append(1)
+        else:
+            result.append(2)
+    return np.array(result)
+
 def main(args):
     # load graph data
     movielens_flag = False
@@ -49,7 +60,8 @@ def main(args):
         num_classes = 3
         train_idx = th.from_numpy(np.array(train_y_index[0]))
         test_idx = th.from_numpy(np.array(test_y_index[0]))
-        labels = th.from_numpy(all_y_label.T[0])
+        # labels = th.from_numpy(all_y_label.T[0])
+        labels = th.from_numpy(process_all_y_label(all_y_label))
         # print(len(train_y_index[2]))
         # print(test_idx)
         # print(labels.shape)
