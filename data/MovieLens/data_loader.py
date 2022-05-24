@@ -1,10 +1,7 @@
-import torch
-from torch.utils.data import Dataset, DataLoader
 import dgl
 import os
-import pickle as pkl
 import numpy as np
-import random
+import torch as th
 
 def parse_edge_index_file(filename):
     """Parse edge index file."""
@@ -50,43 +47,41 @@ def parse_label_index_file(filename):
         label_array[index][class_label_new] = 1
     return node_index, label_array, class_num
 
-# Split data into train/eval/test
-def split_data(hg, etype_name):
-    src, dst = hg.edges(etype=etype_name)
-    user_item_src = src.numpy().tolist()
-    user_item_dst = dst.numpy().tolist()
-    
-    num_link = len(user_item_src)
-    pos_label=[1]*num_link
-    pos_data=list(zip(user_item_src,user_item_dst,pos_label))
-
-    ui_adj = np.array(hg.adj(etype=etype_name).to_dense())
-    full_idx = np.where(ui_adj==0)
-
-    sample = random.sample(range(0, len(full_idx[0])), num_link)
-    neg_label = [0]*num_link
-    neg_data = list(zip(full_idx[0][sample],full_idx[1][sample],neg_label))
-    
-    full_data = pos_data + neg_data
-    random.shuffle(full_data)
-
-    train_size = int(len(full_data) * 0.6)
-    eval_size = int(len(full_data) * 0.2)
-    test_size = len(full_data) - train_size - eval_size
-    train_data = full_data[:train_size]
-    eval_data = full_data[train_size : train_size+eval_size]
-    test_data = full_data[train_size+eval_size : train_size+eval_size+test_size]
-    train_data = np.array(train_data)
-    eval_data = np.array(eval_data)
-    test_data = np.array(test_data)
-    
-    return train_data, eval_data, test_data
+def parse_set_split_file(filename):
+    np_indices = np.loadtxt(filename)
+    """
+    np_indices: numpy.array
+    """
+    indices = []
+    for index in np_indices:
+        indices.append(th.nonzero(index, as_tuple=False).squeeze())
+    return indices
 
 def process_movielens(root_path):
     # User-Movie 943 1682 100000 UMUM
     # User-Age 943 8 943 UAUM
     # User-Occupation 943 21 943 UOUM
     # Movie-Genre 1682 18 2861 UMGM
+    """ movielens dataset process
+
+        Parameters
+        ----------
+        root_path : string
+            The root of data folder
+
+        Returns
+        -------
+        g : DGLHeteroGraph
+            Heterogenoues graph. Same as g in entity_classify.py
+        all_y_index: list
+            a list of node index of labeled nodes.
+        all_y_label: np.array
+            stores a label matrix. One hot vector.
+        train_y_index: list[torch.Tensor]
+            A list of train_index in tensor format. Each tensor acts like train_idx in entity_classify.py
+        test_y_index: list[torch.Tensor]
+            A list of test_index in tensor format. Each tensor acts like test_index in entity_classify.py
+        """
 
     data_path = os.path.join(root_path, 'Movielens')
     if not (os.path.exists(data_path)):
@@ -119,6 +114,9 @@ def process_movielens(root_path):
     print("Graph constructed.")
 
     # Split data into train/eval/test
-    train_data, eval_data, test_data = split_data(hg, 'um')
+    all_y_index, all_y_label, class_num = \
+            parse_label_index_file(os.path.join(data_path, 'movie_genre.txt'))
+    train_y_index = parse_set_split_file(os.path.join(data_path, 'movie_genre_train_idx.txt'))
+    test_y_index = parse_set_split_file(os.path.join(data_path, 'movie_genre_test_idx.txt'))
 
-    return hg, train_data, eval_data, test_data
+    return hg, all_y_index, all_y_label, train_y_index, test_y_index
