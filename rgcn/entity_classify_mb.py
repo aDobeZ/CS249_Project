@@ -8,6 +8,8 @@ import numpy as np
 import time
 import torch as th
 import torch.nn.functional as F
+import sys
+np.set_printoptions(threshold=sys.maxsize)
 
 import dgl
 from dgl.data.rdf import AIFBDataset, MUTAGDataset, BGSDataset, AMDataset
@@ -124,16 +126,16 @@ def main(args):
             blocks = [blk.to(device) for blk in blocks]
             # seeds: the index of training label
             seeds = seeds[category]     # we only predict the nodes with type "category"
-            print(seeds)
+            # print(seeds)
             batch_tic = time.time()
             emb = extract_embed(node_embed, input_nodes)
             lbl = labels[seeds]
-            print(lbl)
+            # print(lbl)
             if use_cuda:
                 emb = {k : e.cuda() for k, e in emb.items()}
                 lbl = lbl.cuda()
             logits = model(emb, blocks)[category]
-            print(logits.argmax(dim=1))
+            # print(logits.argmax(dim=1))
             loss = F.cross_entropy(logits, lbl)
             loss.backward()
             optimizer.step()

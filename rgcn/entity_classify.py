@@ -10,6 +10,9 @@ import torch.nn as nn
 import torch.nn.functional as F
 from dgl.data.rdf import AIFBDataset, MUTAGDataset, BGSDataset, AMDataset
 from model import EntityClassify
+import sys
+import numpy
+numpy.set_printoptions(threshold=sys.maxsize)
 
 from os.path import dirname, abspath, join
 import sys
@@ -85,6 +88,9 @@ def main(args):
 
         if epoch > 5:
             dur.append(t1 - t0)
+        print("train_index:\t", train_idx)
+        print("val_idx:\t", val_idx)
+        print(len(train_idx), len(val_idx))
         train_acc = th.sum(logits[train_idx].argmax(dim=1) == labels[train_idx]).item() / len(train_idx)
         val_loss = F.cross_entropy(logits[val_idx], labels[val_idx])
         val_acc = th.sum(logits[val_idx].argmax(dim=1) == labels[val_idx]).item() / len(val_idx)
