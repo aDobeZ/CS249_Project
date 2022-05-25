@@ -74,9 +74,12 @@ def main(args):
         num_classes = dataset.num_classes
         train_mask = g.nodes[category].data.pop('train_mask')
         test_mask = g.nodes[category].data.pop('test_mask')
+        print(g.nodes)
         train_idx = th.nonzero(train_mask, as_tuple=False).squeeze()
+        print(train_idx)
         test_idx = th.nonzero(test_mask, as_tuple=False).squeeze()
         labels = g.nodes[category].data.pop('labels')
+        return
     else:
         # To support movielens dataset
         g, all_y_index, all_y_label, train_y_index, test_y_index = movielens_loader(DATA_PATH)
@@ -145,9 +148,12 @@ def main(args):
         for i, (input_nodes, seeds, blocks) in enumerate(loader):
             blocks = [blk.to(device) for blk in blocks]
             seeds = seeds[category]     # we only predict the nodes with type "category"
+            print(seeds)
             batch_tic = time.time()
             emb = extract_embed(node_embed, input_nodes)
             lbl = labels[seeds]
+            print(lbl)
+            return
             if use_cuda:
                 emb = {k : e.cuda() for k, e in emb.items()}
                 lbl = lbl.cuda()

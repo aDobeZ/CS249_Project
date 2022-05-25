@@ -109,7 +109,11 @@ def main(args):
         optimizer.zero_grad()
         if epoch > 5:
             t0 = time.time()
-        logits = model()[category]
+        temp = model()
+        logits = temp[category]
+        print(logits.shape)
+        print(temp['tag'])
+        return
         loss = F.cross_entropy(logits[train_idx], labels[train_idx])
         loss.backward()
         optimizer.step()
