@@ -11,8 +11,7 @@ import torch.nn.functional as F
 from dgl.data.rdf import AIFBDataset, MUTAGDataset, BGSDataset, AMDataset
 from model import EntityClassify
 import sys
-import numpy
-numpy.set_printoptions(threshold=sys.maxsize)
+np.set_printoptions(threshold=sys.maxsize)
 
 from os.path import dirname, abspath, join
 import sys
@@ -31,21 +30,27 @@ def main(args):
     g, all_y_index, all_y_label, train_y_index, test_y_index = dataloader(DATA_PATH)
     category = "movie"
     num_classes = 3
-    train_idx = th.from_numpy(np.array(train_y_index[0]))
+    pool_index = np.array(train_y_index[0])
+    num_train_nodes = len(pool_index)    
+    train_idx = th.from_numpy(pool_index[0:int(num_train_nodes/2)])
+    val_idx = th.from_numpy(pool_index[int(num_train_nodes/2):num_train_nodes])
     test_idx = th.from_numpy(np.array(test_y_index[0]))
+
     labels = th.from_numpy(all_y_label)
+
+    # define train index 
 
     category_id = len(g.ntypes)
     for i, ntype in enumerate(g.ntypes):
         if ntype == category:
             category_id = i
 
-    # split dataset into train, validate, test
-    if args.validation:
-        val_idx = train_idx[:len(train_idx) // 5]
-        train_idx = train_idx[len(train_idx) // 5:]
-    else:
-        val_idx = train_idx
+    # # split dataset into train, validate, test
+    # if args.validation:
+    #     val_idx = train_idx[:len(train_idx) // 5]
+    #     train_idx = train_idx[len(train_idx) // 5:]
+    # else:
+    #     val_idx = train_idx
 
     # check cuda
     use_cuda = args.gpu >= 0 and th.cuda.is_available()
@@ -54,6 +59,7 @@ def main(args):
         g = g.to('cuda:%d' % args.gpu)
         labels = labels.cuda()
         train_idx = train_idx.cuda()
+        val_idx = val_idx.cuda()
         test_idx = test_idx.cuda()
 
     # create model
@@ -88,8 +94,8 @@ def main(args):
 
         if epoch > 5:
             dur.append(t1 - t0)
-        print("train_index:\t", train_idx)
-        print("val_idx:\t", val_idx)
+        # print("train_index:\t", train_idx)
+        # print("val_idx:\t", val_idx)
         print(len(train_idx), len(val_idx))
         train_acc = th.sum(logits[train_idx].argmax(dim=1) == labels[train_idx]).item() / len(train_idx)
         val_loss = F.cross_entropy(logits[val_idx], labels[val_idx])
