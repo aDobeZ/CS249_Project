@@ -38,14 +38,13 @@ def parse_label_index_file(filename):
             label_list.append(label_temp)
             label_list_new.append(count)
             count = count + 1
-    class_num = len(label_list)
-    label_array = np.zeros((len(label), class_num), dtype=int)
+    label_array = np.zeros((len(label)), dtype=int)
     for index in range(len(label)):
         class_label = label[index]
         idx = label_list.index(class_label)
         class_label_new = label_list_new[idx]
-        label_array[index][class_label_new] = 1
-    return node_index, label_array, class_num
+        label_array[index] = class_label_new
+    return node_index, label_array
 
 def parse_set_split_file(filename):
     np_indices = np.loadtxt(filename)
@@ -114,7 +113,7 @@ def process_movielens(root_path):
     print("Graph constructed.")
 
     # Split data into train/eval/test
-    all_y_index, all_y_label, class_num = \
+    all_y_index, all_y_label = \
             parse_label_index_file(os.path.join(data_path, 'movie_genre.txt'))
     train_y_index = parse_set_split_file(os.path.join(data_path, 'movie_genre_train_idx.txt'))
     test_y_index = parse_set_split_file(os.path.join(data_path, 'movie_genre_test_idx.txt'))

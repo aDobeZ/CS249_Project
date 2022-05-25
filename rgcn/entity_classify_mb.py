@@ -84,7 +84,7 @@ def main(args):
         num_classes = 3
         train_idx = th.from_numpy(np.array(train_y_index[0]))
         test_idx = th.from_numpy(np.array(test_y_index[0]))
-        labels = th.from_numpy(all_y_label.T[0])
+        labels = th.from_numpy(all_y_label)
         # print(len(train_y_index[2]))
         # print(test_idx)
         # print(labels.shape)
