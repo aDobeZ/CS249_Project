@@ -32,7 +32,6 @@ def parse_edge_index_file(filename):
             old_col.append(col_index)
             old_data.append(int(1))            
             if len(str_temp) > 2:
-                print("filename: ", filename, "\tline_index: ", index, "\tstr_temp: ", str_temp)
                 new_data.append(float(str_temp[2].strip()))
             else:
                 new_data.append(1)

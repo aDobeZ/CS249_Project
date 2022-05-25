@@ -156,12 +156,15 @@ for data_index in range(len(dataset_arr)):
                 active_select(outs_train, old_adj, pool_idx, all_node_num, batch, importance, degree, rewards,
                               class_num, iter_num, dominates)
             select_duration = time.time() - select_t
-
+            print("index length:\t", len(idx_select))
+            print("idx_select:\t", idx_select)
             pool_idx = list(set(pool_idx) - set(idx_select))
             train_idx = train_idx + idx_select
             train_mask = sample_mask(train_idx, all_node_num)
             y_train = np.zeros((all_node_num, class_num))
             y_train[train_mask, :] = y_all[train_mask, :]
+            print("train_idx_len:\t", len(train_idx))
+            print("train_idx_len:\t", train_idx)
             test_cost, test_acc, model_duration, outs_train = DHNE_train(y_train, train_mask, y_val, val_mask, y_test, test_mask)
             print("dataset=" + data_str, " round=" + str(run), " iter=" + str(iter_num), "  Test set results:", "cost=",
                   "{:.5f}".format(test_cost), "accuracy=", "{:.5f}".format(test_acc), "time=", "{:.5f}".format(model_duration))
@@ -172,7 +175,6 @@ for data_index in range(len(dataset_arr)):
                 reward_centrality = rewards['centrality']
                 reward_entropy = rewards['entropy']
                 reward_density = rewards['density']
-
                 reward_centrality.append(1)
                 reward_entropy.append(1)
                 reward_density.append(1)
