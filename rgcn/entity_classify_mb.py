@@ -54,43 +54,18 @@ def main(args):
         device = 'cuda:%d' % args.gpu
 
     # load graph data
-    movielens_flag = False
-    if args.dataset == 'aifb':
-        dataset = AIFBDataset()
-    elif args.dataset == 'mutag':
-        dataset = MUTAGDataset()
-    elif args.dataset == 'bgs':
-        dataset = BGSDataset()
-    elif args.dataset == 'am':
-        dataset = AMDataset()
-    elif args.dataset == 'movielens':
-        movielens_flag = True
+    if args.dataset == 'movielens':
+        dataloader = movielens_loader
     else:
         raise ValueError()
-
-    if not movielens_flag:
-        g = dataset[0]
-        category = dataset.predict_category
-        num_classes = dataset.num_classes
-        train_mask = g.nodes[category].data.pop('train_mask')
-        test_mask = g.nodes[category].data.pop('test_mask')
-        print(g.nodes)
-        train_idx = th.nonzero(train_mask, as_tuple=False).squeeze()
-        print(train_idx)
-        test_idx = th.nonzero(test_mask, as_tuple=False).squeeze()
-        labels = g.nodes[category].data.pop('labels')
-        return
-    else:
-        # To support movielens dataset
-        g, all_y_index, all_y_label, train_y_index, test_y_index = movielens_loader(DATA_PATH)
-        category = "movie"
-        num_classes = 3
-        train_idx = th.from_numpy(np.array(train_y_index[0]))
-        test_idx = th.from_numpy(np.array(test_y_index[0]))
-        labels = th.from_numpy(all_y_label)
-        # print(len(train_y_index[2]))
-        # print(test_idx)
-        # print(labels.shape)
+    
+    # To support movielens dataset
+    g, all_y_index, all_y_label, train_y_index, test_y_index = dataloader(DATA_PATH)
+    category = "movie"
+    num_classes = 3
+    train_idx = th.from_numpy(np.array(train_y_index[0]))
+    test_idx = th.from_numpy(np.array(test_y_index[0]))
+    labels = th.from_numpy(all_y_label)
 
     # split dataset into train, validate, test
     if args.validation:
@@ -147,13 +122,11 @@ def main(args):
 
         for i, (input_nodes, seeds, blocks) in enumerate(loader):
             blocks = [blk.to(device) for blk in blocks]
+            # seeds: the index of training label
             seeds = seeds[category]     # we only predict the nodes with type "category"
-            print(seeds)
             batch_tic = time.time()
             emb = extract_embed(node_embed, input_nodes)
             lbl = labels[seeds]
-            print(lbl)
-            return
             if use_cuda:
                 emb = {k : e.cuda() for k, e in emb.items()}
                 lbl = lbl.cuda()
@@ -176,10 +149,13 @@ def main(args):
     if args.model_path is not None:
         th.save(model.state_dict(), args.model_path)
 
+    test_labels = labels[test_idx]
+    print(test_idx[:20])
+    print(test_labels[:20])
     output = model.inference(
         g, args.batch_size, 'cuda' if use_cuda else 'cpu', 0, node_embed)
     test_pred = output[category][test_idx]
-    test_labels = labels[test_idx].to(test_pred.device)
+    test_labels = test_labels.to(test_pred.device)
     test_acc = (test_pred.argmax(1) == test_labels).float().mean()
     print("Test Acc: {:.4f}".format(test_acc))
     print()

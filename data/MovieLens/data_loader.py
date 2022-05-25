@@ -28,22 +28,25 @@ def parse_label_index_file(filename):
     label_list = []
     label_list_new = []
     count = 0
+    max_idx = -1
     for index in range(len(reader)):
         line = reader[index]
         str_temp = line.strip().split("\t")
-        node_index.append(int(str_temp[0].strip()))
+        curr_index = int(str_temp[0].strip())
+        node_index.append(curr_index)
+        max_idx = max(max_idx, curr_index)
         label_temp = int(str_temp[1].strip())
         label.append(label_temp)
         if label_temp not in label_list:
             label_list.append(label_temp)
             label_list_new.append(count)
             count = count + 1
-    label_array = np.zeros((len(label)), dtype=int)
+    label_array = np.empty((max_idx + 1), dtype=int)
     for index in range(len(label)):
         class_label = label[index]
         idx = label_list.index(class_label)
         class_label_new = label_list_new[idx]
-        label_array[index] = class_label_new
+        label_array[node_index[index]] = class_label_new
     return node_index, label_array
 
 def parse_set_split_file(filename):
@@ -53,7 +56,7 @@ def parse_set_split_file(filename):
     """
     indices = []
     for index in np_indices:
-        indices.append(th.nonzero(th.from_numpy(index), as_tuple=False).squeeze())
+        indices.append(th.from_numpy(index.astype(int)))
     return indices
 
 def process_movielens(root_path):

@@ -17,53 +17,20 @@ DATA_PATH = join(dirname(dirname(abspath(__file__))), "data")
 sys.path.insert(0, join(DATA_PATH, 'MovieLens'))
 from data_loader import process_movielens as movielens_loader
 
-# def process_all_y_label(label):
-#     result = []
-#     for i in label:
-#         if (i[0] == 1):
-#             result.append(0)
-#         elif (i[1] == 1):
-#             result.append(1)
-#         else:
-#             result.append(2)
-#     return np.array(result)
-
 def main(args):
     # load graph data
-    movielens_flag = False
-    if args.dataset == 'aifb':
-        dataset = AIFBDataset()
-    elif args.dataset == 'mutag':
-        dataset = MUTAGDataset()
-    elif args.dataset == 'bgs':
-        dataset = BGSDataset()
-    elif args.dataset == 'am':
-        dataset = AMDataset()
-    elif args.dataset == 'movielens':
-        movielens_flag = True
+    if args.dataset == 'movielens':
+        dataloader = movielens_loader
     else:
         raise ValueError()
 
-    if not movielens_flag:
-        g = dataset[0]
-        category = dataset.predict_category
-        num_classes = dataset.num_classes
-        train_mask = g.nodes[category].data.pop('train_mask')
-        test_mask = g.nodes[category].data.pop('test_mask')
-        train_idx = th.nonzero(train_mask, as_tuple=False).squeeze()
-        test_idx = th.nonzero(test_mask, as_tuple=False).squeeze()
-        labels = g.nodes[category].data.pop('labels')
-    else:
-        # To support movielens dataset
-        g, all_y_index, all_y_label, train_y_index, test_y_index = movielens_loader(DATA_PATH)
-        category = "movie"
-        num_classes = 3
-        train_idx = th.from_numpy(np.array(train_y_index[0]))
-        test_idx = th.from_numpy(np.array(test_y_index[0]))
-        labels = th.from_numpy(all_y_label)
-        # labels = th.from_numpy(process_all_y_label(all_y_label))
-        # print(len(train_y_index[2]))
-        # print(test_idx)
+    # To support movielens dataset
+    g, all_y_index, all_y_label, train_y_index, test_y_index = dataloader(DATA_PATH)
+    category = "movie"
+    num_classes = 3
+    train_idx = th.from_numpy(np.array(train_y_index[0]))
+    test_idx = th.from_numpy(np.array(test_y_index[0]))
+    labels = th.from_numpy(all_y_label)
 
     category_id = len(g.ntypes)
     for i, ntype in enumerate(g.ntypes):
@@ -111,9 +78,6 @@ def main(args):
             t0 = time.time()
         temp = model()
         logits = temp[category]
-        print(logits.shape)
-        print(temp['tag'])
-        return
         loss = F.cross_entropy(logits[train_idx], labels[train_idx])
         loss.backward()
         optimizer.step()
