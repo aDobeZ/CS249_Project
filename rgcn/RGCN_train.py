@@ -37,7 +37,7 @@ def RGCN_train(args, train_idx, val_idx, test_idx, labels, g):
 
     # optimizer
     optimizer = th.optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.l2norm)
-
+    others = ['director', 'writer', 'tag', 'user']
     # training loop
     print("start training...")
     dur = []
@@ -47,7 +47,10 @@ def RGCN_train(args, train_idx, val_idx, test_idx, labels, g):
         t0 = time.time()
         temp = model()
         logits = temp[category]
-        print("shape:\t", logits.shape)
+        for cat_name in others: 
+            logits = th.cat((logits, temp[cat_name]), 0)
+        logits = logits[0: 28491]
+        print(logits.shape)
         loss = F.cross_entropy(logits[train_idx], labels[train_idx])
         loss.backward()
         optimizer.step()
