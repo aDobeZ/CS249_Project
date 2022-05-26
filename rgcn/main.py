@@ -54,7 +54,7 @@ def main(args):
 	maxIter = int(num_pool_nodes / batch)
 	if maxIter > 40: 
 		maxIter = 40
-		maxIter = 1
+		maxIter = 5
 
 	# define parameters
 	outs_train = []
@@ -69,6 +69,7 @@ def main(args):
 	idx_select_density = []
 
 	for iter_num in range(1, maxIter + 1):
+		print("current iteration: \t", iter_num)
 		if iter_num == 1:
 			idx_select = pool_index[0:batch]
 		else:
