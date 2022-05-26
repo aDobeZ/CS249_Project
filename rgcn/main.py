@@ -26,9 +26,16 @@ sys.path.insert(0, ROOT_PATH)
 from data import movielens_loader, cora_loader
 
 def main(args):
-	# load graph data
-	if args.dataset == 'movielens':
+
+    # load graph data
+	if args.dataset == "movielens":
 		dataloader = movielens_loader
+		category = "movie"
+		dataset = 'MovieLens'
+	elif args.dataset == 'cora':
+		dataloader = cora_loader
+		category = "paper"
+		dataset = 'Cora'
 	else:
 		raise ValueError()
 
@@ -46,7 +53,6 @@ def main(args):
 	soft_function = nn.Softmax(dim=1)
 	
 	# generate needed parameters
-	dataset = 'MovieLens'
 	node_objects, features, network_objects, all_y_index, all_y_label, \
 	pool_y_index, test_y_index, class_num, all_node_num, new_adj, old_adj = load_data(dataset)
 	importance, degree = node_importance_degree(node_objects, old_adj, all_node_num)
@@ -56,6 +62,7 @@ def main(args):
 	maxIter = int(num_pool_nodes / batch)
 	if maxIter > 40: 
 		maxIter = 40
+		maxIter = 1
 
 	# define parameters
 	outs_train = []
@@ -84,7 +91,7 @@ def main(args):
 		train_idx = train_idx + idx_select
 		print("train index length:\t", len(train_idx))
 		print("train index:\t", train_idx)
-		logits = RGCN_train(args, th.from_numpy(np.asarray(train_idx)), val_idx, test_idx, labels, g)
+		logits = RGCN_train(args, th.from_numpy(np.asarray(train_idx)), val_idx, test_idx, labels, g, class_num)
 		outs_train = logits.detach().numpy()
 		outs_old = outs_new
 		outs_new = soft_function(logits)

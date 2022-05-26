@@ -10,9 +10,7 @@ import sys
 np.set_printoptions(threshold=sys.maxsize)
 from os.path import dirname, abspath, join
 
-def RGCN_train(args, train_idx, val_idx, test_idx, labels, g):
-    category = "movie"
-    num_classes = 3
+def RGCN_train(args, train_idx, val_idx, test_idx, labels, g, num_classes):
     # check cuda
     use_cuda = args.gpu >= 0 and th.cuda.is_available()
     if use_cuda:
@@ -35,9 +33,19 @@ def RGCN_train(args, train_idx, val_idx, test_idx, labels, g):
     if use_cuda:
         model.cuda()
 
+    # define parameter 
+    if args.dataset == 'movielens':
+        category = "movie"
+        others = ['movie', 'director', 'writer', 'tag', 'user']
+    elif args.dataset == 'cora':
+        category = "paper"
+        others = ['author', 'paper', 'term']
+    else:
+        raise ValueError()
+    print("others:\t", others)
+
     # optimizer
     optimizer = th.optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.l2norm)
-    others = ['director', 'writer', 'tag', 'user']
     # training loop
     print("start training...")
     dur = []
@@ -46,9 +54,12 @@ def RGCN_train(args, train_idx, val_idx, test_idx, labels, g):
         optimizer.zero_grad()
         t0 = time.time()
         temp = model()
-        logits = temp[category]
-        for cat_name in others: 
-            logits = th.cat((logits, temp[cat_name]), 0)
+        # logits = temp[category]
+        for index, cat_name in enumerate(others):
+            if index == 0:
+                logits = temp[cat_name]
+            else:
+                logits = th.cat((logits, temp[cat_name]), 0)
         # logits = logits[0: 28491]
         # print(logits.shape)
         loss = F.cross_entropy(logits[train_idx], labels[train_idx])
