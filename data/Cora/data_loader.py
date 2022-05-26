@@ -60,12 +60,8 @@ def parse_set_split_file(filename):
         indices.append(th.from_numpy(index.astype(int)))
     return indices
 
-def process_movielens(root_path):
-    # User-Movie 943 1682 100000 UMUM
-    # User-Age 943 8 943 UAUM
-    # User-Occupation 943 21 943 UOUM
-    # Movie-Genre 1682 18 2861 UMGM
-    """ movielens dataset process
+def process_cora(root_path):
+    """ cora dataset process
 
         Parameters
         ----------
@@ -86,40 +82,35 @@ def process_movielens(root_path):
             A list of test_index in tensor format. Each tensor acts like test_index in entity_classify.py
         """
 
-    data_path = os.path.join(root_path, 'MovieLens')
+    data_path = os.path.join(root_path, 'Cora')
     if not (os.path.exists(data_path)):
-        print('Can not find movielens in {}, please download the dataset first.'.format(data_path))
+        print('Can not find cora in {}, please download the dataset first.'.format(data_path))
 
     #Construct graph from raw data.
-    # movie_director
-    movie_director_src, movie_director_dst = parse_edge_index_file(os.path.join(data_path, 'movie_director.txt'))
+    # paper_author
+    paper_author_src, paper_author_dst = parse_edge_index_file(os.path.join(data_path, 'PA.txt'))
 
-    # user_movie
-    user_movie_src, user_movie_dst = parse_edge_index_file(os.path.join(data_path, 'user_movie_rating.txt'))
+    # paper_term
+    paper_term_src, paper_term_dst = parse_edge_index_file(os.path.join(data_path, 'PT.txt'))
 
-    # movie_tag
-    movie_tag_src, movie_tag_dst = parse_edge_index_file(os.path.join(data_path, 'movie_tag.txt'))
-
-    # movie_writer
-    movie_writer_src, movie_writer_dst = parse_edge_index_file(os.path.join(data_path, 'movie_writer.txt'))
+    # paper_paper
+    paper_paper_src, paper_paper_dst = parse_edge_index_file(os.path.join(data_path, 'PP.txt'))
 
     #build graph
     hg = dgl.heterograph({
-        ('movie', 'md', 'director') : (movie_director_src, movie_director_dst),
-        ('director', 'dm', 'movie') : (movie_director_dst, movie_director_src),
-        ('user', 'um', 'movie') : (user_movie_src, user_movie_dst),
-        ('movie', 'mu', 'user') : (user_movie_dst, user_movie_src),
-        ('movie', 'mt', 'tag') : (movie_tag_src, movie_tag_dst), 
-        ('tag', 'tm', 'movie') : (movie_tag_dst, movie_tag_src),
-        ('movie', 'ua', 'writer') : (movie_writer_src, movie_writer_dst),
-        ('writer', 'au', 'movie') : (movie_writer_dst, movie_writer_src)})
+        ('paper', 'pa', 'author') : (paper_author_src, paper_author_dst),
+        ('author', 'ap', 'paper') : (paper_author_dst, paper_author_src),
+        ('paper', 'pt', 'tag') : (paper_term_src, paper_term_dst),
+        ('tag', 'tp', 'paper') : (paper_term_dst, paper_term_src),
+        ('paper', 'pp1', 'paper') : (paper_paper_src, paper_paper_dst), 
+        ('paper', 'pp2', 'paper') : (paper_paper_dst, paper_paper_src)})
 
     print("Graph constructed.")
 
     # Split data into train/eval/test
     all_y_index, all_y_label, class_num = \
-            parse_label_index_file(os.path.join(data_path, 'movie_genre.txt'))
-    train_y_index = parse_set_split_file(os.path.join(data_path, 'movie_genre_train_idx.txt'))
-    test_y_index = parse_set_split_file(os.path.join(data_path, 'movie_genre_test_idx.txt'))
+            parse_label_index_file(os.path.join(data_path, 'paper_label.txt'))
+    train_y_index = parse_set_split_file(os.path.join(data_path, 'paper_label_train_idx.txt'))
+    test_y_index = parse_set_split_file(os.path.join(data_path, 'paper_label_test_idx.txt'))
 
     return hg, all_y_index, all_y_label, train_y_index, test_y_index, class_num

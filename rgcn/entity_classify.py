@@ -15,21 +15,24 @@ np.set_printoptions(threshold=sys.maxsize)
 
 from os.path import dirname, abspath, join
 import sys
-DATA_PATH = join(dirname(dirname(abspath(__file__))), "data")
-sys.path.insert(0, join(DATA_PATH, 'MovieLens'))
-from data_loader import process_movielens as movielens_loader
+ROOT_PATH = dirname(dirname(abspath(__file__)))
+DATA_PATH = join(ROOT_PATH, "data")
+sys.path.insert(0, ROOT_PATH)
+from data import movielens_loader, cora_loader
 
 def main(args):
     # load graph data
     if args.dataset == 'movielens':
         dataloader = movielens_loader
+        category = "movie"
+    elif args.dataset == 'cora':
+        dataloader = cora_loader
+        category = "paper"
     else:
         raise ValueError()
 
     # To support movielens dataset
-    g, all_y_index, all_y_label, train_y_index, test_y_index = dataloader(DATA_PATH)
-    category = "movie"
-    num_classes = 3
+    g, all_y_index, all_y_label, train_y_index, test_y_index, num_classes = dataloader(DATA_PATH)
     pool_index = np.array(train_y_index[0])
     num_train_nodes = len(pool_index)    
     train_idx = th.from_numpy(pool_index[0:int(num_train_nodes/2)])
@@ -40,10 +43,10 @@ def main(args):
 
     # define train index 
 
-    category_id = len(g.ntypes)
-    for i, ntype in enumerate(g.ntypes):
-        if ntype == category:
-            category_id = i
+    # category_id = len(g.ntypes)
+    # for i, ntype in enumerate(g.ntypes):
+    #     if ntype == category:
+    #         category_id = i
 
     # # split dataset into train, validate, test
     # if args.validation:
