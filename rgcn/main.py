@@ -25,33 +25,55 @@ sys.path.insert(0, ROOT_PATH)
 from data import movielens_loader, cora_loader
 
 def main(args):
-    # load graph data
-    if args.dataset == 'movielens':
-        dataloader = movielens_loader
-    else:
-        raise ValueError()
+        # load graph data
+        if args.dataset == 'movielens':
+                dataloader = movielens_loader
+        else:
+                raise ValueError()
 
-    # To support movielens dataset
-    g, all_y_index, all_y_label, train_y_index, test_y_index, num_classes = dataloader(DATA_PATH)
-    pool_index = np.array(train_y_index[0])
-    num_train_nodes = len(pool_index)    
-    train_idx = th.from_numpy(pool_index[0:int(num_train_nodes/2)])
-    val_idx = th.from_numpy(pool_index[int(num_train_nodes/2):num_train_nodes])
-    test_idx = th.from_numpy(np.array(test_y_index[0]))
-    
-    labels = th.from_numpy(all_y_label)
+        # To support movielens dataset
+        g, all_y_index, all_y_label, train_y_index, test_y_index, num_classes = dataloader(DATA_PATH)
+        pool_index = np.array(train_y_index[0])
+        num_train_nodes = len(pool_index)
+        num_pool_nodes = int(num_train_nodes / 2)  
+        train_idx = th.from_numpy(pool_index[0:num_pool_nodes])
+        val_idx = th.from_numpy(pool_index[num_pool_nodes:num_train_nodes])
+        test_idx = th.from_numpy(np.array(test_y_index[0]))
+        
+        labels = th.from_numpy(all_y_label)
 
-    # generate needed parameters
-    dataset = 'MovieLens'
-    node_objects, features, network_objects, all_y_index, all_y_label, \
-    pool_y_index, test_y_index, class_num, all_node_num, new_adj, old_adj = load_data(dataset)
+        # generate needed parameters
+        dataset = 'MovieLens'
+        node_objects, features, network_objects, all_y_index, all_y_label, \
+        pool_y_index, test_y_index, class_num, all_node_num, new_adj, old_adj = load_data(dataset)
 
-#     # preprocess train index
-#     batch = 20
-#     round_num = len(pool_y_index)
-#     num_pool_nodes = int(num_train_nodes / 2)
+        # preprocess train index
+        batch = 20
+        maxIter = int(num_pool_nodes / batch)
+        if maxIter > 40: maxIter = 40
 
-    RGCN_train(args, train_idx, val_idx, test_idx, labels, g)
+        # define parameters
+        outs_train = []
+        train_idx = []
+        outs_new = []
+        outs_old = []
+        rewards = {}
+        reward_centrality = [1]
+        reward_entropy = [1]
+        reward_density = [1]
+        rewards['centrality'] = reward_centrality
+        rewards['entropy'] = reward_entropy
+        rewards['density'] = reward_density
+        idx_select = []
+        idx_select_centrality = []
+        idx_select_entropy = []
+        idx_select_density = []
+        dominates = dict()
+        dominates['centrality'] = 0
+        dominates['entropy'] = 0
+        dominates['density'] = 0
+
+        logits = RGCN_train(args, train_idx, val_idx, test_idx, labels, g)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='RGCN')
