@@ -49,15 +49,14 @@ def RGCN_train(args, train_idx, val_idx, test_idx, labels, g):
         logits = temp[category]
         for cat_name in others: 
             logits = th.cat((logits, temp[cat_name]), 0)
-        logits = logits[0: 28491]
-        print(logits.shape)
+        # logits = logits[0: 28491]
+        # print(logits.shape)
         loss = F.cross_entropy(logits[train_idx], labels[train_idx])
         loss.backward()
         optimizer.step()
         t1 = time.time()
 
-        if epoch > 5:
-            dur.append(t1 - t0)
+        dur.append(t1 - t0)
         train_acc = th.sum(logits[train_idx].argmax(dim=1) == labels[train_idx]).item() / len(train_idx)
         val_loss = F.cross_entropy(logits[val_idx], labels[val_idx])
         val_acc = th.sum(logits[val_idx].argmax(dim=1) == labels[val_idx]).item() / len(val_idx)
@@ -68,7 +67,10 @@ def RGCN_train(args, train_idx, val_idx, test_idx, labels, g):
     #     th.save(model.state_dict(), args.model_path)
 
     model.eval()
-    logits = model.forward()[category]
+    result = model.forward()
+    logits = result[category]
+    for cat_name in others: 
+        logits = th.cat((logits, result[cat_name]), 0)
     test_loss = F.cross_entropy(logits[test_idx], labels[test_idx])
     test_acc = th.sum(logits[test_idx].argmax(dim=1) == labels[test_idx]).item() / len(test_idx)
     print("Test Acc: {:.4f} | Test loss: {:.4f}".format(test_acc, test_loss.item()))

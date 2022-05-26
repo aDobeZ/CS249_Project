@@ -13,6 +13,7 @@ from model import EntityClassify
 import sys
 from RGCN_train import RGCN_train
 from active_select_RGCN import *
+from rewards_RGCN import *
 from utils2 import *
 np.set_printoptions(threshold=sys.maxsize)
 from os.path import dirname, abspath, join
@@ -48,13 +49,13 @@ def main(args):
 	dataset = 'MovieLens'
 	node_objects, features, network_objects, all_y_index, all_y_label, \
 	pool_y_index, test_y_index, class_num, all_node_num, new_adj, old_adj = load_data(dataset)
+	importance, degree = node_importance_degree(node_objects, old_adj, all_node_num)
 
 	# preprocess train index
 	batch = 20
 	maxIter = int(num_pool_nodes / batch)
 	if maxIter > 40: 
 		maxIter = 40
-		maxIter = 5
 
 	# define parameters
 	outs_train = []
@@ -68,14 +69,13 @@ def main(args):
 	idx_select_entropy = []
 	idx_select_density = []
 
-	for iter_num in range(1, maxIter + 1):
-		print("current iteration: \t", iter_num)
-		if iter_num == 1:
+	for iter_num in range(maxIter):
+		print("current iteration: \t", iter_num + 1)
+		if iter_num == 0:
 			idx_select = pool_index[0:batch]
 		else:
-			# idex_select = pool_index[0:batch]
 			idx_select, idx_select_centrality, idx_select_entropy, idx_select_density, dominates = \
-			active_select(outs_train, old_adj, pool_index, all_node_num, batch, importance, degree, rewards,
+			active_select(outs_train, outs_new, old_adj, pool_index, all_node_num, batch, importance, degree, rewards,
 							class_num, iter_num, dominates)
 		# idx_select = idx_select.tolist()
 		print("select index length:\t", len(idx_select))
@@ -85,17 +85,18 @@ def main(args):
 		print("train index length:\t", len(train_idx))
 		print("train index:\t", train_idx)
 		logits = RGCN_train(args, th.from_numpy(np.asarray(train_idx)), val_idx, test_idx, labels, g)
-		print("logits shape:\t", logits.shape)
+		outs_train = logits.detach().numpy()
 		outs_old = outs_new
 		outs_new = soft_function(logits)
+		outs_new = outs_new.detach().numpy()
 		# compute rewards after the 1st iteration
-		if iter_num > 1:
+		if iter_num > 0:
 			rewards = measure_rewards(outs_new, outs_old, rewards, old_adj, idx_select, idx_select_centrality, idx_select_entropy, idx_select_density)
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='RGCN')
-    parser.add_argument("--dropout", type=float, default=0,
+    parser.add_argument("--dropout", type=float, default=0.5,
             help="dropout probability")
     parser.add_argument("--n-hidden", type=int, default=3,
             help="number of hidden units")
@@ -107,7 +108,7 @@ if __name__ == '__main__':
             help="number of filter weight matrices, default: -1 [use all]")
     parser.add_argument("--n-layers", type=int, default=2,
             help="number of propagation rounds")
-    parser.add_argument("-e", "--n-epochs", type=int, default=50,
+    parser.add_argument("-e", "--n-epochs", type=int, default=200,
             help="number of training epochs")
     parser.add_argument("-d", "--dataset", type=str, required=True,
             help="dataset to use")

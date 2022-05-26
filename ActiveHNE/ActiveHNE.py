@@ -152,6 +152,7 @@ for data_index in range(len(dataset_arr)):
             if iter_num == 0:
                 idx_select = pool_idx[0:batch]
             else:
+                print("outs_train size:\t", len(outs_train[3]), len(outs_train[4]))
                 idx_select, idx_select_centrality, idx_select_entropy, idx_select_density, dominates = \
                 active_select(outs_train, old_adj, pool_idx, all_node_num, batch, importance, degree, rewards,
                               class_num, iter_num, dominates)

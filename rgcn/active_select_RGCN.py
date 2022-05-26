@@ -97,7 +97,7 @@ def node_density(embeddings, all_node_num, class_num):
     return density
 
 
-def active_select(outs, all_adj, pool_idx, all_node_num, topb, importance, degree, rewards, class_num, iter_num, dominates):
+def active_select(outs_train, outs_new, all_adj, pool_idx, all_node_num, topb, importance, degree, rewards, class_num, iter_num, dominates):
     """
     combine the three selection strategies to select the most valuable topb nodes with the highest scores.
     :param outs:
@@ -115,8 +115,8 @@ def active_select(outs, all_adj, pool_idx, all_node_num, topb, importance, degre
     """
     # all_adj = sp.csc_matrix.todense(all_adj)
     # rewards = np.zeros(all_node_num)
-    embeddings = outs[3]
-    outputs = outs[4]
+    embeddings = outs_train
+    outputs = outs_new
     centrality_rewards = rewards['centrality']
     entropy_rewards = rewards['entropy']
     density_rewards = rewards['density']
