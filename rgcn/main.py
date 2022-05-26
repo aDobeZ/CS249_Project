@@ -35,10 +35,12 @@ def main(args):
 	g, all_y_index, all_y_label, train_y_index, test_y_index, num_classes = dataloader(DATA_PATH)
 	pool_index = np.array(train_y_index[0])
 	num_train_nodes = len(pool_index)
-	num_pool_nodes = int(num_train_nodes / 2)  
-	train_idx = th.from_numpy(pool_index[0:num_pool_nodes])
+	num_pool_nodes = int(num_train_nodes / 2)
+	# train_idx = th.from_numpy(pool_index[0:num_pool_nodes])
 	val_idx = th.from_numpy(pool_index[num_pool_nodes:num_train_nodes])
 	test_idx = th.from_numpy(np.array(test_y_index[0]))
+	pool_index = pool_index[0:num_pool_nodes].tolist()
+
 	
 	labels = th.from_numpy(all_y_label)
 
@@ -52,11 +54,11 @@ def main(args):
 	maxIter = int(num_pool_nodes / batch)
 	if maxIter > 40: 
 		maxIter = 40
-		maxIter = 1
+		maxIter = 10
 
 	# define parameters
 	outs_train = []
-	# train_idx = []
+	train_idx = []
 	outs_new = []
 	outs_old = []
 	rewards = {'centrality': [1], 'entropy': [1], 'density': [1]}
@@ -67,10 +69,24 @@ def main(args):
 	idx_select_density = []
 
 	for iter_num in range(1, maxIter + 1):
-		logits = RGCN_train(args, train_idx, val_idx, test_idx, labels, g)
+		if iter_num == 1:
+			idx_select = pool_index[0:batch]
+		else:
+			idex_select = pool_index[0:batch]
+			# idx_select, idx_select_centrality, idx_select_entropy, idx_select_density, dominates = \
+			# active_select(outs_train, old_adj, pool_index, all_node_num, batch, importance, degree, rewards,
+			# 				class_num, iter_num, dominates)
+		# idx_select = idx_select.tolist()
+		print("select index length:\t", len(idx_select))
+		print("idx_select:\t", idx_select)
+		pool_index = list(set(pool_index) - set(idx_select))
+		train_idx = train_idx + idx_select
+		print("train index length:\t", len(train_idx))
+		print("train index:\t", train_idx)
+		logits = RGCN_train(args, th.from_numpy(np.asarray(train_idx)), val_idx, test_idx, labels, g)
 		print("logits shape:\t", logits.shape)
 		# compute rewards after the 1st iteration
-		if iter_num > 1:
+		if iter_num > 30:
 			rewards = measure_rewards(outs_new, outs_old, rewards, old_adj, idx_select, idx_select_centrality, idx_select_entropy, idx_select_density)
 
 
