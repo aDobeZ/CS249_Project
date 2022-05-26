@@ -40,10 +40,10 @@ def main(args):
 	val_idx = th.from_numpy(pool_index[num_pool_nodes:num_train_nodes])
 	test_idx = th.from_numpy(np.array(test_y_index[0]))
 	pool_index = pool_index[0:num_pool_nodes].tolist()
-
 	
 	labels = th.from_numpy(all_y_label)
-
+	soft_function = nn.Softmax(dim=1)
+	
 	# generate needed parameters
 	dataset = 'MovieLens'
 	node_objects, features, network_objects, all_y_index, all_y_label, \
@@ -54,7 +54,7 @@ def main(args):
 	maxIter = int(num_pool_nodes / batch)
 	if maxIter > 40: 
 		maxIter = 40
-		maxIter = 10
+		maxIter = 1
 
 	# define parameters
 	outs_train = []
@@ -86,7 +86,7 @@ def main(args):
 		logits = RGCN_train(args, th.from_numpy(np.asarray(train_idx)), val_idx, test_idx, labels, g)
 		print("logits shape:\t", logits.shape)
 		outs_old = outs_new
-		outs_new = nn.Softmax(logits, dim=1)
+		outs_new = soft_function(logits)
 		# compute rewards after the 1st iteration
 		if iter_num > 1:
 			rewards = measure_rewards(outs_new, outs_old, rewards, old_adj, idx_select, idx_select_centrality, idx_select_entropy, idx_select_density)
