@@ -114,7 +114,7 @@ def load_data(dataset_str):
         train_label_index = ["paper_label_train_idx.txt"]
         test_label_index = ["paper_label_test_idx.txt"]
     elif dataset_str == 'MovieLens':
-        node_index = ["directors_dict.txt", "movies_dict.txt", "tags_dict.txt", "users_dict.txt", "writers_dict.txt"]
+        node_index = ["movies_dict.txt", "directors_dict.txt", "writers_dict.txt", "tags_dict.txt", "users_dict.txt"]
         edge_index = ["movie_director.txt", "movie_tag.txt", "movie_writer.txt", "user_movie_rating.txt"]
         label_index = ["movie_genre.txt"]
         train_label_index = ["movie_genre_train_idx.txt"]
