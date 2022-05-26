@@ -1,0 +1,106 @@
+Namespace(dataset='movielens', dropout=0, gpu=0, l2norm=0, lr=0.01, model_path=None, n_bases=-1, n_epochs=50, n_hidden=16, n_layers=2, use_self_loop=False, validation=False)
+Graph constructed.
+start training...
+918 918
+Epoch 00000 | Train Acc: 0.3170 | Train Loss: 1.0988 | Valid Acc: 0.3453 | Valid loss: 1.0982 | Time: nan
+918 918
+Epoch 00001 | Train Acc: 0.6667 | Train Loss: 1.0810 | Valid Acc: 0.4357 | Valid loss: 1.0935 | Time: nan
+918 918
+Epoch 00002 | Train Acc: 0.7102 | Train Loss: 1.0569 | Valid Acc: 0.4771 | Valid loss: 1.0869 | Time: nan
+918 918
+Epoch 00003 | Train Acc: 0.7331 | Train Loss: 1.0273 | Valid Acc: 0.4815 | Valid loss: 1.0796 | Time: nan
+918 918
+Epoch 00004 | Train Acc: 0.7647 | Train Loss: 0.9938 | Valid Acc: 0.4880 | Valid loss: 1.0717 | Time: nan
+918 918
+Epoch 00005 | Train Acc: 0.8072 | Train Loss: 0.9571 | Valid Acc: 0.4946 | Valid loss: 1.0633 | Time: nan
+918 918
+Epoch 00006 | Train Acc: 0.8617 | Train Loss: 0.9176 | Valid Acc: 0.5011 | Valid loss: 1.0545 | Time: 0.0374
+918 918
+Epoch 00007 | Train Acc: 0.9041 | Train Loss: 0.8751 | Valid Acc: 0.5109 | Valid loss: 1.0450 | Time: 0.0368
+918 918
+Epoch 00008 | Train Acc: 0.9412 | Train Loss: 0.8299 | Valid Acc: 0.5261 | Valid loss: 1.0349 | Time: 0.0370
+918 918
+Epoch 00009 | Train Acc: 0.9662 | Train Loss: 0.7825 | Valid Acc: 0.5381 | Valid loss: 1.0244 | Time: 0.0368
+918 918
+Epoch 00010 | Train Acc: 0.9771 | Train Loss: 0.7336 | Valid Acc: 0.5556 | Valid loss: 1.0136 | Time: 0.0369
+918 918
+Epoch 00011 | Train Acc: 0.9837 | Train Loss: 0.6836 | Valid Acc: 0.5599 | Valid loss: 1.0026 | Time: 0.0367
+918 918
+Epoch 00012 | Train Acc: 0.9880 | Train Loss: 0.6331 | Valid Acc: 0.5643 | Valid loss: 0.9918 | Time: 0.0369
+918 918
+Epoch 00013 | Train Acc: 0.9880 | Train Loss: 0.5825 | Valid Acc: 0.5708 | Valid loss: 0.9813 | Time: 0.0368
+918 918
+Epoch 00014 | Train Acc: 0.9902 | Train Loss: 0.5327 | Valid Acc: 0.5741 | Valid loss: 0.9712 | Time: 0.0376
+918 918
+Epoch 00015 | Train Acc: 0.9913 | Train Loss: 0.4841 | Valid Acc: 0.5773 | Valid loss: 0.9620 | Time: 0.0375
+918 918
+Epoch 00016 | Train Acc: 0.9913 | Train Loss: 0.4373 | Valid Acc: 0.5708 | Valid loss: 0.9537 | Time: 0.0373
+918 918
+Epoch 00017 | Train Acc: 0.9913 | Train Loss: 0.3927 | Valid Acc: 0.5697 | Valid loss: 0.9465 | Time: 0.0372
+918 918
+Epoch 00018 | Train Acc: 0.9924 | Train Loss: 0.3508 | Valid Acc: 0.5686 | Valid loss: 0.9405 | Time: 0.0372
+918 918
+Epoch 00019 | Train Acc: 0.9924 | Train Loss: 0.3117 | Valid Acc: 0.5610 | Valid loss: 0.9358 | Time: 0.0372
+918 918
+Epoch 00020 | Train Acc: 0.9946 | Train Loss: 0.2758 | Valid Acc: 0.5512 | Valid loss: 0.9323 | Time: 0.0371
+918 918
+Epoch 00021 | Train Acc: 0.9946 | Train Loss: 0.2432 | Valid Acc: 0.5512 | Valid loss: 0.9302 | Time: 0.0370
+918 918
+Epoch 00022 | Train Acc: 0.9946 | Train Loss: 0.2137 | Valid Acc: 0.5523 | Valid loss: 0.9294 | Time: 0.0370
+918 918
+Epoch 00023 | Train Acc: 0.9946 | Train Loss: 0.1875 | Valid Acc: 0.5545 | Valid loss: 0.9299 | Time: 0.0370
+918 918
+Epoch 00024 | Train Acc: 0.9956 | Train Loss: 0.1642 | Valid Acc: 0.5534 | Valid loss: 0.9319 | Time: 0.0369
+918 918
+Epoch 00025 | Train Acc: 0.9956 | Train Loss: 0.1438 | Valid Acc: 0.5534 | Valid loss: 0.9352 | Time: 0.0369
+918 918
+Epoch 00026 | Train Acc: 0.9956 | Train Loss: 0.1259 | Valid Acc: 0.5545 | Valid loss: 0.9399 | Time: 0.0368
+918 918
+Epoch 00027 | Train Acc: 0.9978 | Train Loss: 0.1104 | Valid Acc: 0.5534 | Valid loss: 0.9458 | Time: 0.0368
+918 918
+Epoch 00028 | Train Acc: 0.9978 | Train Loss: 0.0970 | Valid Acc: 0.5545 | Valid loss: 0.9528 | Time: 0.0367
+918 918
+Epoch 00029 | Train Acc: 0.9978 | Train Loss: 0.0855 | Valid Acc: 0.5566 | Valid loss: 0.9608 | Time: 0.0367
+918 918
+Epoch 00030 | Train Acc: 0.9978 | Train Loss: 0.0755 | Valid Acc: 0.5566 | Valid loss: 0.9695 | Time: 0.0366
+918 918
+Epoch 00031 | Train Acc: 0.9978 | Train Loss: 0.0670 | Valid Acc: 0.5577 | Valid loss: 0.9789 | Time: 0.0366
+918 918
+Epoch 00032 | Train Acc: 0.9989 | Train Loss: 0.0596 | Valid Acc: 0.5566 | Valid loss: 0.9887 | Time: 0.0365
+918 918
+Epoch 00033 | Train Acc: 0.9989 | Train Loss: 0.0533 | Valid Acc: 0.5566 | Valid loss: 0.9989 | Time: 0.0365
+918 918
+Epoch 00034 | Train Acc: 0.9989 | Train Loss: 0.0478 | Valid Acc: 0.5556 | Valid loss: 1.0093 | Time: 0.0365
+918 918
+Epoch 00035 | Train Acc: 0.9989 | Train Loss: 0.0432 | Valid Acc: 0.5556 | Valid loss: 1.0198 | Time: 0.0365
+918 918
+Epoch 00036 | Train Acc: 0.9989 | Train Loss: 0.0391 | Valid Acc: 0.5556 | Valid loss: 1.0303 | Time: 0.0365
+918 918
+Epoch 00037 | Train Acc: 0.9989 | Train Loss: 0.0356 | Valid Acc: 0.5545 | Valid loss: 1.0407 | Time: 0.0364
+918 918
+Epoch 00038 | Train Acc: 0.9989 | Train Loss: 0.0326 | Valid Acc: 0.5556 | Valid loss: 1.0509 | Time: 0.0364
+918 918
+Epoch 00039 | Train Acc: 0.9989 | Train Loss: 0.0299 | Valid Acc: 0.5556 | Valid loss: 1.0608 | Time: 0.0364
+918 918
+Epoch 00040 | Train Acc: 0.9989 | Train Loss: 0.0276 | Valid Acc: 0.5566 | Valid loss: 1.0704 | Time: 0.0363
+918 918
+Epoch 00041 | Train Acc: 0.9989 | Train Loss: 0.0256 | Valid Acc: 0.5566 | Valid loss: 1.0797 | Time: 0.0363
+918 918
+Epoch 00042 | Train Acc: 0.9989 | Train Loss: 0.0238 | Valid Acc: 0.5566 | Valid loss: 1.0886 | Time: 0.0363
+918 918
+Epoch 00043 | Train Acc: 0.9989 | Train Loss: 0.0223 | Valid Acc: 0.5577 | Valid loss: 1.0972 | Time: 0.0363
+918 918
+Epoch 00044 | Train Acc: 0.9989 | Train Loss: 0.0209 | Valid Acc: 0.5566 | Valid loss: 1.1055 | Time: 0.0367
+918 918
+Epoch 00045 | Train Acc: 0.9989 | Train Loss: 0.0196 | Valid Acc: 0.5577 | Valid loss: 1.1134 | Time: 0.0370
+918 918
+Epoch 00046 | Train Acc: 0.9989 | Train Loss: 0.0185 | Valid Acc: 0.5599 | Valid loss: 1.1210 | Time: 0.0373
+918 918
+Epoch 00047 | Train Acc: 0.9989 | Train Loss: 0.0175 | Valid Acc: 0.5577 | Valid loss: 1.1283 | Time: 0.0376
+918 918
+Epoch 00048 | Train Acc: 0.9989 | Train Loss: 0.0166 | Valid Acc: 0.5566 | Valid loss: 1.1353 | Time: 0.0378
+918 918
+Epoch 00049 | Train Acc: 0.9989 | Train Loss: 0.0158 | Valid Acc: 0.5577 | Valid loss: 1.1421 | Time: 0.0381
+
+Test Acc: 0.5588 | Test loss: 1.2122
+
