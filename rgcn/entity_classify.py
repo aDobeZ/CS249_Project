@@ -18,7 +18,7 @@ import sys
 ROOT_PATH = dirname(dirname(abspath(__file__)))
 DATA_PATH = join(ROOT_PATH, "data")
 sys.path.insert(0, ROOT_PATH)
-from data import movielens_loader, cora_loader
+from data import movielens_loader, cora_loader, dblp_loader
 
 def main(args):
     # load graph data
@@ -27,6 +27,9 @@ def main(args):
         category = "movie"
     elif args.dataset == 'cora':
         dataloader = cora_loader
+        category = "paper"
+    elif args.dataset == 'dblp':
+        dataloader = dblp_loader
         category = "paper"
     else:
         raise ValueError()
