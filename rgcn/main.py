@@ -72,10 +72,10 @@ def main(args):
 		if iter_num == 1:
 			idx_select = pool_index[0:batch]
 		else:
-			idex_select = pool_index[0:batch]
-			# idx_select, idx_select_centrality, idx_select_entropy, idx_select_density, dominates = \
-			# active_select(outs_train, old_adj, pool_index, all_node_num, batch, importance, degree, rewards,
-			# 				class_num, iter_num, dominates)
+			# idex_select = pool_index[0:batch]
+			idx_select, idx_select_centrality, idx_select_entropy, idx_select_density, dominates = \
+			active_select(outs_train, old_adj, pool_index, all_node_num, batch, importance, degree, rewards,
+							class_num, iter_num, dominates)
 		# idx_select = idx_select.tolist()
 		print("select index length:\t", len(idx_select))
 		print("idx_select:\t", idx_select)
@@ -85,8 +85,10 @@ def main(args):
 		print("train index:\t", train_idx)
 		logits = RGCN_train(args, th.from_numpy(np.asarray(train_idx)), val_idx, test_idx, labels, g)
 		print("logits shape:\t", logits.shape)
+		outs_old = outs_new
+		outs_new = nn.Softmax(logits, dim=1)
 		# compute rewards after the 1st iteration
-		if iter_num > 30:
+		if iter_num > 1:
 			rewards = measure_rewards(outs_new, outs_old, rewards, old_adj, idx_select, idx_select_centrality, idx_select_entropy, idx_select_density)
 
 
