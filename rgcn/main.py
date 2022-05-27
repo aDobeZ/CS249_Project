@@ -69,7 +69,6 @@ def main(args):
 	maxIter = int(num_pool_nodes / batch)
 	if maxIter > 40: 
 		maxIter = 40
-		maxIter = 5
 
 	# define parameters
 	outs_train = []

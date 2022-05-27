@@ -49,7 +49,7 @@ def main(args):
     g, all_y_index, all_y_label, train_y_index, test_y_index, num_classes = dataloader(DATA_PATH)
     pool_index = np.array(train_y_index[0])
     num_train_nodes = len(pool_index)    
-    train_idx = th.from_numpy(pool_index[0:int(num_train_nodes/2)])
+    train_idx = th.from_numpy(pool_index[0:3200])
     val_idx = th.from_numpy(pool_index[int(num_train_nodes/2):num_train_nodes])
     test_idx = th.from_numpy(np.array(test_y_index[0]))
 
