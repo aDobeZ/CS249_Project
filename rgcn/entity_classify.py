@@ -8,6 +8,8 @@ import time
 import torch as th
 import torch.nn as nn
 import torch.nn.functional as F
+import matplotlib.pyplot as plt
+import seaborn as sns
 from dgl.data.rdf import AIFBDataset, MUTAGDataset, BGSDataset, AMDataset
 from model import EntityClassify
 import sys
@@ -21,6 +23,17 @@ DATA_PATH = join(ROOT_PATH, "data")
 sys.path.insert(0, ROOT_PATH)
 from data import movielens_loader, cora_loader
 
+def plot_figure(idx_lst, stats_record, row_nums, label):
+    fig = plt.figure()
+    sns.lineplot(idx_lst, stats_record[row_nums[0]])
+    sns.lineplot(idx_lst, stats_record[row_nums[1]])
+    sns.lineplot(idx_lst, stats_record[row_nums[2]])
+    plt.xlabel("Epoch")
+    plt.ylabel(label)
+    plt.legend(["Train" + label, "Val" + label, "Test" + label])
+    plt.show()
+    fig.savefig(args.dataset + "_" + label + "_curve.pdf")
+    
 def main(args):
     # load graph data
     if args.dataset == 'movielens':
@@ -87,6 +100,9 @@ def main(args):
     # training loop
     print("start training...")
     dur = []
+    # record loss and accurary for training, validation, accuracy
+    stats_record = np.zeros(shape=(6,args.n_epochs))
+
     model.train()
     for epoch in range(args.n_epochs):
         optimizer.zero_grad()
@@ -107,6 +123,15 @@ def main(args):
         train_acc = th.sum(logits[train_idx].argmax(dim=1) == labels[train_idx]).item() / len(train_idx)
         val_loss = F.cross_entropy(logits[val_idx], labels[val_idx])
         val_acc = th.sum(logits[val_idx].argmax(dim=1) == labels[val_idx]).item() / len(val_idx)
+        test_loss = F.cross_entropy(logits[test_idx], labels[test_idx])
+        test_acc = th.sum(logits[test_idx].argmax(dim=1) == labels[test_idx]).item() / len(test_idx)
+        stats_record[0][epoch] = loss.item()
+        stats_record[1][epoch] = train_acc
+        stats_record[2][epoch] = val_loss.item()
+        stats_record[3][epoch] = val_acc
+        stats_record[4][epoch] = test_loss.item()
+        stats_record[5][epoch] = test_acc
+
         print("Epoch {:05d} | Train Acc: {:.4f} | Train Loss: {:.4f} | Valid Acc: {:.4f} | Valid loss: {:.4f} | Time: {:.4f}".
               format(epoch, train_acc, loss.item(), val_acc, val_loss.item(), np.average(dur)))
         if val_loss < best_loss:
@@ -121,6 +146,10 @@ def main(args):
     test_loss = F.cross_entropy(logits[test_idx], labels[test_idx])
     test_acc = th.sum(logits[test_idx].argmax(dim=1) == labels[test_idx]).item() / len(test_idx)
     print("Test Acc: {:.4f} | Test loss: {:.4f}".format(test_acc, test_loss.item()))
+    
+    idx = [i for i in range(args.n_epochs)]
+    plot_figure(idx, stats_record, [0, 2, 4], "Loss")
+    plot_figure(idx, stats_record, [1, 3, 5], "Accuracy")
     print()
 
 if __name__ == '__main__':
