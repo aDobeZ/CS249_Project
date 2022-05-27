@@ -82,6 +82,7 @@ def main(args):
 	maxIter = int(num_pool_nodes / batch)
 	if maxIter > 40: 
 		maxIter = 40
+		maxIter = 5
 
 	# define parameters
 	outs_train = []
@@ -125,16 +126,19 @@ def main(args):
 		outs_new = soft_function(logits)
 		outs_new = outs_new.detach().numpy()
 		# compute rewards after the 1st iteration
+		base_record, base_best = RGCN_baseline(args, th.from_numpy(np.asarray(rgcn_idx)), val_idx, test_idx, labels, g, class_num)
+		baseline_record = np.concatenate((baseline_record, np.array(base_record)), axis=0)
+		best_baseline.append(base_best)
 		if iter_num > 0:
 			rewards = measure_rewards(outs_new, outs_old, rewards, old_adj, idx_select, idx_select_centrality, idx_select_entropy, idx_select_density)
 	
 	print("iteration end")
 	record = record[1:]
-	for iter_num in range(1, 11):
-		base_record, base_best = RGCN_baseline(args, th.from_numpy(np.asarray(rgcn_idx)), val_idx, test_idx, labels, g, class_num)
-		baseline_record = np.concatenate((baseline_record, np.array(base_record)), axis=0)
-		best_baseline.append(base_best)
 	baseline_record = baseline_record[1:]
+	# for iter_num in range(1, 11):
+	# 	base_record, base_best = RGCN_baseline(args, th.from_numpy(np.asarray(rgcn_idx)), val_idx, test_idx, labels, g, class_num)
+	# 	baseline_record = np.concatenate((baseline_record, np.array(base_record)), axis=0)
+	# 	best_baseline.append(base_best)
 	idx = [i for i in range(record.shape[0])]
 	plot_figure(idx, record, [0, 2, 4], "Accuracy")
 	plot_figure(idx, record, [1, 3, 5], "Loss")
