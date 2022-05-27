@@ -15,6 +15,7 @@ from RGCN_train import RGCN_train
 from active_select_RGCN import *
 from rewards_RGCN import *
 from utils2 import *
+from RGCN_baseline import *
 np.set_printoptions(threshold=sys.maxsize)
 from os.path import dirname, abspath, join
 
@@ -67,6 +68,7 @@ def main(args):
 	maxIter = int(num_pool_nodes / batch)
 	if maxIter > 40: 
 		maxIter = 40
+		maxIter = 5
 
 	# define parameters
 	outs_train = []
@@ -81,7 +83,9 @@ def main(args):
 	idx_select_entropy = []
 	idx_select_density = []
 	record = np.zeros((1, 6))
-
+	best_active = []
+	baseline_record = []
+	best_baseline = []
 	for iter_num in range(maxIter):
 		print("current iteration: \t", iter_num + 1)
 		if iter_num == 0:
@@ -100,7 +104,8 @@ def main(args):
 		print("train index length:\t", len(train_idx))
 		print("train index:\t", train_idx)
 		print("rgcn index: \t", rgcn_idx)
-		logits, new_record = RGCN_train(args, th.from_numpy(np.asarray(rgcn_idx)), val_idx, test_idx, labels, g, class_num)
+		logits, new_record, best_result = RGCN_train(args, th.from_numpy(np.asarray(rgcn_idx)), val_idx, test_idx, labels, g, class_num)
+		best_active += best_result
 		record = np.concatenate((record, np.array(new_record)), axis=0)
 		outs_train = logits.detach().numpy()
 		outs_old = outs_new
@@ -112,8 +117,14 @@ def main(args):
 	
 	print("iteration end")
 	record = record[1:]
-	# print(record)
-	print(record.shape)
+	for iter_num in range(1, 11):
+		base_record, base_best = RGCN_baseline(args, th.from_numpy(np.asarray(rgcn_idx)), val_idx, test_idx, labels, g, class_num)
+		baseline_record += base_record
+		best_baseline += base_best
+	print("ActiveRGCN record shape:\t\t", record.shape)
+	print("RGCNbaseline record shape:\t", np.array(baseline_record).shape)
+	print("best active:\n", best_active)
+	print("best baseline:\n", best_baseline)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='RGCN')
