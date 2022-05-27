@@ -1,14 +1,11 @@
-import argparse
 import numpy as np
 import time
 import torch as th
-import torch.nn as nn
 import torch.nn.functional as F
-from dgl.data.rdf import AIFBDataset, MUTAGDataset, BGSDataset, AMDataset
 from model import EntityClassify
 import sys
 np.set_printoptions(threshold=sys.maxsize)
-from os.path import dirname, abspath, join
+import copy
 
 def RGCN_train(args, train_idx, val_idx, test_idx, labels, g, num_classes):
     # check cuda
@@ -51,6 +48,8 @@ def RGCN_train(args, train_idx, val_idx, test_idx, labels, g, num_classes):
     dur = []
     record = []
     model.train()
+    best_model = None
+    best_loss = 100000000
     for epoch in range(args.n_epochs):
         optimizer.zero_grad()
         t0 = time.time()
@@ -77,12 +76,14 @@ def RGCN_train(args, train_idx, val_idx, test_idx, labels, g, num_classes):
         print("Epoch {:05d} | Train Acc: {:.4f} | Train Loss: {:.4f} | Valid Acc: {:.4f} | Valid loss: {:.4f} | Test Acc: {:.4f} | Test loss: {:.4f} | Time: {:.4f}".
               format(epoch, train_acc, loss.item(), val_acc, val_loss.item(), test_acc, test_loss.item(), np.average(dur)))
         record.append([train_acc, loss.item(), val_acc, val_loss.item(), test_acc, test_loss.item()])
+        if val_loss < best_loss:
+            best_model = copy.deepcopy(model)
     print()
-    # if args.model_path is not None:
-    #     th.save(model.state_dict(), args.model_path)
+    if args.model_path is not None:
+        th.save(best_model.state_dict(), args.model_path)
 
-    model.eval()
-    result = model.forward()
+    best_model.eval()
+    result = best_model.forward()
     logits = result[category]
     # for cat_name in others: 
     #     logits = th.cat((logits, result[cat_name]), 0)

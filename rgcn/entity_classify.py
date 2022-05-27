@@ -11,6 +11,7 @@ import torch.nn.functional as F
 from dgl.data.rdf import AIFBDataset, MUTAGDataset, BGSDataset, AMDataset
 from model import EntityClassify
 import sys
+import copy
 np.set_printoptions(threshold=sys.maxsize)
 
 from os.path import dirname, abspath, join
@@ -73,6 +74,9 @@ def main(args):
                            num_hidden_layers=args.n_layers - 2,
                            dropout=args.dropout,
                            use_self_loop=args.use_self_loop)
+    
+    best_loss = 10000000
+    best_model = None
 
     if use_cuda:
         model.cuda()
@@ -105,12 +109,14 @@ def main(args):
         val_acc = th.sum(logits[val_idx].argmax(dim=1) == labels[val_idx]).item() / len(val_idx)
         print("Epoch {:05d} | Train Acc: {:.4f} | Train Loss: {:.4f} | Valid Acc: {:.4f} | Valid loss: {:.4f} | Time: {:.4f}".
               format(epoch, train_acc, loss.item(), val_acc, val_loss.item(), np.average(dur)))
+        if val_loss < best_loss:
+            best_model = copy.deepcopy(model)
     print()
     if args.model_path is not None:
-        th.save(model.state_dict(), args.model_path)
+        th.save(best_model.state_dict(), args.model_path)
 
-    model.eval()
-    logits = model.forward()[category]
+    best_model.eval()
+    logits = best_model.forward()[category]
     test_loss = F.cross_entropy(logits[test_idx], labels[test_idx])
     test_acc = th.sum(logits[test_idx].argmax(dim=1) == labels[test_idx]).item() / len(test_idx)
     print("Test Acc: {:.4f} | Test loss: {:.4f}".format(test_acc, test_loss.item()))
