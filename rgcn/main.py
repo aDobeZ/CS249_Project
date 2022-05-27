@@ -82,7 +82,6 @@ def main(args):
 	maxIter = int(num_pool_nodes / batch)
 	if maxIter > 40: 
 		maxIter = 40
-		maxIter = 5
 
 	# define parameters
 	outs_train = []
@@ -126,7 +125,7 @@ def main(args):
 		outs_new = soft_function(logits)
 		outs_new = outs_new.detach().numpy()
 		# compute rewards after the 1st iteration
-		base_record, base_best = RGCN_baseline(args, th.from_numpy(np.asarray(rgcn_idx)), val_idx, test_idx, labels, g, class_num)
+		base_record, base_best = RGCN_baseline(args, pool_index, len(rgcn_idx), min_index, val_idx, test_idx, labels, g, class_num)
 		baseline_record = np.concatenate((baseline_record, np.array(base_record)), axis=0)
 		best_baseline.append(base_best)
 		if iter_num > 0:
@@ -161,7 +160,7 @@ if __name__ == '__main__':
             help="number of filter weight matrices, default: -1 [use all]")
     parser.add_argument("--n-layers", type=int, default=2,
             help="number of propagation rounds")
-    parser.add_argument("-e", "--n-epochs", type=int, default=200,
+    parser.add_argument("-e", "--n-epochs", type=int, default=50,
             help="number of training epochs")
     parser.add_argument("-d", "--dataset", type=str, required=True,
             help="dataset to use")

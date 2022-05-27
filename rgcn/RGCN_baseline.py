@@ -12,6 +12,7 @@ from dgl.data.rdf import AIFBDataset, MUTAGDataset, BGSDataset, AMDataset
 from model import EntityClassify
 import sys
 import copy
+import random
 np.set_printoptions(threshold=sys.maxsize)
 
 from os.path import dirname, abspath, join
@@ -21,7 +22,7 @@ DATA_PATH = join(ROOT_PATH, "data")
 sys.path.insert(0, ROOT_PATH)
 from data import movielens_loader, cora_loader
 
-def RGCN_baseline(args, train_idx, val_idx, test_idx, labels, g, num_classes):
+def RGCN_baseline(args, pool_index, train_num, min_index, val_idx, test_idx, labels, g, num_classes):
     # load graph data
     if args.dataset == 'movielens':
         dataloader = movielens_loader
@@ -31,7 +32,11 @@ def RGCN_baseline(args, train_idx, val_idx, test_idx, labels, g, num_classes):
         category = "paper"
     else:
         raise ValueError()
-
+    random.shuffle(pool_index)
+    train_idx = pool_index[0: train_num]
+    train_idx = [idx - min_index for idx in train_idx]
+    print("train_num:\t", len(train_idx))
+    print("train_idx:\t", train_idx)
     use_cuda = args.gpu >= 0 and th.cuda.is_available()
     if use_cuda:
         th.cuda.set_device(args.gpu)
@@ -64,7 +69,7 @@ def RGCN_baseline(args, train_idx, val_idx, test_idx, labels, g, num_classes):
     dur = []
     model.train()
     record = []
-    for epoch in range(50):
+    for epoch in range(args.n_epochs):
         optimizer.zero_grad()
         if epoch > 5:
             t0 = time.time()
