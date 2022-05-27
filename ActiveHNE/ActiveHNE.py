@@ -16,7 +16,7 @@ tf.set_random_seed(seed)
 # Settings
 flags = tf.app.flags
 FLAGS = flags.FLAGS
-flags.DEFINE_string('dataset', 'MovieLens', 'Dataset string.')  # 'MovieLens', 'Cora', 'DBLP_four_area'
+flags.DEFINE_string('dataset', 'Cora', 'Dataset string.')  # 'MovieLens', 'Cora', 'DBLP_four_area'
 flags.DEFINE_string('model', 'DHNE', 'Model string.')
 flags.DEFINE_float('learning_rate', 0.01, 'Initial learning rate.')
 flags.DEFINE_integer('epochs', 200, 'Number of epochs to train.')
@@ -93,6 +93,7 @@ for data_index in range(len(dataset_arr)):
 
     #  Active Learning
     num_train_nodes = len(pool_y_index[0])
+    print("num_train_nodes:\t", num_train_nodes)
     batch = 20
     round_num = len(pool_y_index)
     num_pool_nodes = int(num_train_nodes / 2)

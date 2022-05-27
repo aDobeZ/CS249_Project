@@ -79,7 +79,6 @@ def RGCN_baseline(args, train_idx, val_idx, test_idx, labels, g, num_classes):
             dur.append(t1 - t0)
         # print("train_index:\t", train_idx)
         # print("val_idx:\t", val_idx)
-        print(len(train_idx), len(val_idx))
         train_acc = th.sum(logits[train_idx].argmax(dim=1) == labels[train_idx]).item() / len(train_idx)
         val_loss = F.cross_entropy(logits[val_idx], labels[val_idx])
         val_acc = th.sum(logits[val_idx].argmax(dim=1) == labels[val_idx]).item() / len(val_idx)
@@ -91,7 +90,7 @@ def RGCN_baseline(args, train_idx, val_idx, test_idx, labels, g, num_classes):
         if val_loss < best_loss:
             best_loss = val_loss
             best_model = copy.deepcopy(model)
-    print()
+    # print()
     if args.model_path is not None:
         th.save(best_model.state_dict(), args.model_path)
 

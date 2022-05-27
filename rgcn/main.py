@@ -34,11 +34,13 @@ def main(args):
 		category = "movie"
 		dataset = 'MovieLens'
 		min_index = 0
+		batch = 20
 	elif args.dataset == 'cora':
 		dataloader = cora_loader
 		category = "paper"
 		dataset = 'Cora'
 		min_index = 24961
+		batch = 80
 	else:
 		raise ValueError()
 
@@ -64,7 +66,6 @@ def main(args):
 	print("adj_shape:\t", old_adj.shape)
 
 	# preprocess train index
-	batch = 20
 	maxIter = int(num_pool_nodes / batch)
 	if maxIter > 40: 
 		maxIter = 40
@@ -84,7 +85,7 @@ def main(args):
 	idx_select_density = []
 	record = np.zeros((1, 6))
 	best_active = []
-	baseline_record = []
+	baseline_record = np.zeros((1, 6))
 	best_baseline = []
 	for iter_num in range(maxIter):
 		print("current iteration: \t", iter_num + 1)
@@ -119,12 +120,13 @@ def main(args):
 	record = record[1:]
 	for iter_num in range(1, 11):
 		base_record, base_best = RGCN_baseline(args, th.from_numpy(np.asarray(rgcn_idx)), val_idx, test_idx, labels, g, class_num)
-		baseline_record.append(base_record)
+		baseline_record = np.concatenate((baseline_record, np.array(base_record)), axis=0)
 		best_baseline.append(base_best)
+	baseline_record = baseline_record[1:]
 	print("ActiveRGCN record shape:\t\t", record.shape)
 	print("RGCNbaseline record shape:\t", np.array(baseline_record).shape)
-	print("best active:\n", best_active)
-	print("best baseline:\n", best_baseline)
+	print("best active:\n", np.array(best_active))
+	print("best baseline:\n", np.array(best_baseline))
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='RGCN')
