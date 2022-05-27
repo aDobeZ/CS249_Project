@@ -80,6 +80,7 @@ def main(args):
 	idx_select_centrality = []
 	idx_select_entropy = []
 	idx_select_density = []
+	record = np.zeros((1, 6))
 
 	for iter_num in range(maxIter):
 		print("current iteration: \t", iter_num + 1)
@@ -99,7 +100,8 @@ def main(args):
 		print("train index length:\t", len(train_idx))
 		print("train index:\t", train_idx)
 		print("rgcn index: \t", rgcn_idx)
-		logits = RGCN_train(args, th.from_numpy(np.asarray(rgcn_idx)), val_idx, test_idx, labels, g, class_num)
+		logits, new_record = RGCN_train(args, th.from_numpy(np.asarray(rgcn_idx)), val_idx, test_idx, labels, g, class_num)
+		record = np.concatenate((record, np.array(new_record)), axis=0)
 		outs_train = logits.detach().numpy()
 		outs_old = outs_new
 		outs_new = soft_function(logits)
@@ -107,7 +109,11 @@ def main(args):
 		# compute rewards after the 1st iteration
 		if iter_num > 0:
 			rewards = measure_rewards(outs_new, outs_old, rewards, old_adj, idx_select, idx_select_centrality, idx_select_entropy, idx_select_density)
-
+	
+	print("iteration end")
+	record = record[1:]
+	# print(record)
+	print(record.shape)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='RGCN')

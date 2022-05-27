@@ -49,6 +49,7 @@ def RGCN_train(args, train_idx, val_idx, test_idx, labels, g, num_classes):
     # training loop
     print("start training...")
     dur = []
+    record = []
     model.train()
     for epoch in range(args.n_epochs):
         optimizer.zero_grad()
@@ -71,8 +72,11 @@ def RGCN_train(args, train_idx, val_idx, test_idx, labels, g, num_classes):
         train_acc = th.sum(logits[train_idx].argmax(dim=1) == labels[train_idx]).item() / len(train_idx)
         val_loss = F.cross_entropy(logits[val_idx], labels[val_idx])
         val_acc = th.sum(logits[val_idx].argmax(dim=1) == labels[val_idx]).item() / len(val_idx)
-        print("Epoch {:05d} | Train Acc: {:.4f} | Train Loss: {:.4f} | Valid Acc: {:.4f} | Valid loss: {:.4f} | Time: {:.4f}".
-              format(epoch, train_acc, loss.item(), val_acc, val_loss.item(), np.average(dur)))
+        test_acc = th.sum(logits[test_idx].argmax(dim=1) == labels[test_idx]).item() / len(test_idx)
+        test_loss = F.cross_entropy(logits[test_idx], labels[test_idx])
+        print("Epoch {:05d} | Train Acc: {:.4f} | Train Loss: {:.4f} | Valid Acc: {:.4f} | Valid loss: {:.4f} | Test Acc: {:.4f} | Test loss: {:.4f} | Time: {:.4f}".
+              format(epoch, train_acc, loss.item(), val_acc, val_loss.item(), test_acc, test_loss.item(), np.average(dur)))
+        record.append([train_acc, loss.item(), val_acc, val_loss.item(), test_acc, test_loss.item()])
     print()
     # if args.model_path is not None:
     #     th.save(model.state_dict(), args.model_path)
@@ -84,7 +88,7 @@ def RGCN_train(args, train_idx, val_idx, test_idx, labels, g, num_classes):
     #     logits = th.cat((logits, result[cat_name]), 0)
     test_loss = F.cross_entropy(logits[test_idx], labels[test_idx])
     test_acc = th.sum(logits[test_idx].argmax(dim=1) == labels[test_idx]).item() / len(test_idx)
-    print("Test Acc: {:.4f} | Test loss: {:.4f}".format(test_acc, test_loss.item()))
+    print("Final Test Acc: {:.4f} | Test loss: {:.4f}".format(test_acc, test_loss.item()))
     new_logits = result[others[0]]
     # 对于cora缺少edge的特殊处理
     if args.dataset == 'cora':
@@ -96,4 +100,4 @@ def RGCN_train(args, train_idx, val_idx, test_idx, labels, g, num_classes):
 
     print("new_logits_shape:", new_logits.shape)
     print()
-    return new_logits
+    return new_logits, record
