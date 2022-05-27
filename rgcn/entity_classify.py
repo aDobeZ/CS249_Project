@@ -110,6 +110,7 @@ def main(args):
         print("Epoch {:05d} | Train Acc: {:.4f} | Train Loss: {:.4f} | Valid Acc: {:.4f} | Valid loss: {:.4f} | Time: {:.4f}".
               format(epoch, train_acc, loss.item(), val_acc, val_loss.item(), np.average(dur)))
         if val_loss < best_loss:
+            best_loss = val_loss
             best_model = copy.deepcopy(model)
     print()
     if args.model_path is not None:

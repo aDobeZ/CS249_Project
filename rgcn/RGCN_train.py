@@ -77,6 +77,7 @@ def RGCN_train(args, train_idx, val_idx, test_idx, labels, g, num_classes):
               format(epoch, train_acc, loss.item(), val_acc, val_loss.item(), test_acc, test_loss.item(), np.average(dur)))
         record.append([train_acc, loss.item(), val_acc, val_loss.item(), test_acc, test_loss.item()])
         if val_loss < best_loss:
+            best_loss = val_loss
             best_model = copy.deepcopy(model)
     print()
     if args.model_path is not None:
