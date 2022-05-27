@@ -54,12 +54,12 @@ def RGCN_train(args, train_idx, val_idx, test_idx, labels, g, num_classes):
         optimizer.zero_grad()
         t0 = time.time()
         temp = model()
-        # logits = temp[category]
-        for index, cat_name in enumerate(others):
-            if index == 0:
-                logits = temp[cat_name]
-            else:
-                logits = th.cat((logits, temp[cat_name]), 0)
+        logits = temp[category]
+        # for index, cat_name in enumerate(others):
+        #     if index == 0:
+        #         logits = temp[cat_name]
+        #     else:
+        #         logits = th.cat((logits, temp[cat_name]), 0)
         # logits = logits[0: 28491]
         # print(logits.shape)
         loss = F.cross_entropy(logits[train_idx], labels[train_idx])
@@ -80,11 +80,20 @@ def RGCN_train(args, train_idx, val_idx, test_idx, labels, g, num_classes):
     model.eval()
     result = model.forward()
     logits = result[category]
-    for cat_name in others: 
-        logits = th.cat((logits, result[cat_name]), 0)
+    # for cat_name in others: 
+    #     logits = th.cat((logits, result[cat_name]), 0)
     test_loss = F.cross_entropy(logits[test_idx], labels[test_idx])
     test_acc = th.sum(logits[test_idx].argmax(dim=1) == labels[test_idx]).item() / len(test_idx)
     print("Test Acc: {:.4f} | Test loss: {:.4f}".format(test_acc, test_loss.item()))
-    print("logits_shape:", logits.shape)
+    new_logits = result[others[0]]
+    # 对于cora缺少edge的特殊处理
+    if args.dataset == 'cora':
+        new_logits = th.cat((new_logits, th.zeros(7550, num_classes)), 0)
+    print("cat_name:\t", others[0], "\t shape:\t", new_logits.shape)
+    for index in range(1, len(others)):
+        new_logits = th.cat((new_logits, result[others[index]]), 0)
+        print("cat_name:\t", others[index], "\t shape:\t", new_logits.shape)
+
+    print("new_logits_shape:", new_logits.shape)
     print()
-    return logits
+    return new_logits

@@ -32,10 +32,12 @@ def main(args):
 		dataloader = movielens_loader
 		category = "movie"
 		dataset = 'MovieLens'
+		min_index = 0
 	elif args.dataset == 'cora':
 		dataloader = cora_loader
 		category = "paper"
 		dataset = 'Cora'
+		min_index = 24961
 	else:
 		raise ValueError()
 
@@ -48,7 +50,9 @@ def main(args):
 	val_idx = th.from_numpy(pool_index[num_pool_nodes:num_train_nodes])
 	test_idx = th.from_numpy(np.array(test_y_index[0]))
 	pool_index = pool_index[0:num_pool_nodes].tolist()
-	
+	for index, value in enumerate(pool_index):
+		pool_index[index] += min_index
+
 	labels = th.from_numpy(all_y_label)
 	soft_function = nn.Softmax(dim=1)
 	
@@ -56,6 +60,7 @@ def main(args):
 	node_objects, features, network_objects, all_y_index, all_y_label, \
 	pool_y_index, test_y_index, class_num, all_node_num, new_adj, old_adj = load_data(dataset)
 	importance, degree = node_importance_degree(node_objects, old_adj, all_node_num)
+	print("adj_shape:\t", old_adj.shape)
 
 	# preprocess train index
 	batch = 20
@@ -66,6 +71,7 @@ def main(args):
 	# define parameters
 	outs_train = []
 	train_idx = []
+	rgcn_idx = []
 	outs_new = []
 	outs_old = []
 	rewards = {'centrality': [1], 'entropy': [1], 'density': [1]}
@@ -87,10 +93,13 @@ def main(args):
 		print("select index length:\t", len(idx_select))
 		print("idx_select:\t", idx_select)
 		pool_index = list(set(pool_index) - set(idx_select))
-		train_idx = train_idx + idx_select
+		train_idx += idx_select
+		for index in idx_select:
+			rgcn_idx.append(index - min_index)
 		print("train index length:\t", len(train_idx))
 		print("train index:\t", train_idx)
-		logits = RGCN_train(args, th.from_numpy(np.asarray(train_idx)), val_idx, test_idx, labels, g, class_num)
+		print("rgcn index: \t", rgcn_idx)
+		logits = RGCN_train(args, th.from_numpy(np.asarray(rgcn_idx)), val_idx, test_idx, labels, g, class_num)
 		outs_train = logits.detach().numpy()
 		outs_old = outs_new
 		outs_new = soft_function(logits)
