@@ -8,6 +8,8 @@ import time
 import torch as th
 import torch.nn as nn
 import torch.nn.functional as F
+import matplotlib.pyplot as plt
+import seaborn as sns
 from dgl.data.rdf import AIFBDataset, MUTAGDataset, BGSDataset, AMDataset
 from model import EntityClassify
 import sys
@@ -25,6 +27,17 @@ ROOT_PATH = dirname(dirname(abspath(__file__)))
 DATA_PATH = join(ROOT_PATH, "data")
 sys.path.insert(0, ROOT_PATH)
 from data import movielens_loader, cora_loader
+
+def plot_figure(idx_lst, stats_record, col_nums, label):
+    fig = plt.figure()
+    sns.lineplot(idx_lst, stats_record[:, col_nums[0]])
+    sns.lineplot(idx_lst, stats_record[:, col_nums[1]])
+    sns.lineplot(idx_lst, stats_record[:, col_nums[2]])
+    plt.xlabel("Epoch")
+    plt.ylabel(label)
+    plt.legend(["Train" + label, "Val" + label, "Test" + label])
+    plt.show()
+    fig.savefig(args.dataset + "_" + label + "_curve_with_AL.pdf")
 
 def main(args):
 
@@ -123,6 +136,9 @@ def main(args):
 		baseline_record = np.concatenate((baseline_record, np.array(base_record)), axis=0)
 		best_baseline.append(base_best)
 	baseline_record = baseline_record[1:]
+	idx = [i for i in range(record.shape[0])]
+	plot_figure(idx, record, [0, 2, 4], "Accuracy")
+	plot_figure(idx, record, [1, 3, 5], "Loss")
 	print("ActiveRGCN record shape:\t\t", record.shape)
 	print("RGCNbaseline record shape:\t", np.array(baseline_record).shape)
 	print("best active:\n", np.array(best_active))
