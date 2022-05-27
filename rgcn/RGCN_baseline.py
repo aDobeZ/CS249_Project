@@ -47,7 +47,7 @@ def RGCN_baseline(args, train_idx, val_idx, test_idx, labels, g, num_classes):
                            num_classes,
                            num_bases=args.n_bases,
                            num_hidden_layers=args.n_layers - 2,
-                           dropout=args.dropout,
+                           dropout=0,
                            use_self_loop=args.use_self_loop)
     
     best_loss = 10000000
@@ -64,7 +64,7 @@ def RGCN_baseline(args, train_idx, val_idx, test_idx, labels, g, num_classes):
     dur = []
     model.train()
     record = []
-    for epoch in range(args.n_epochs):
+    for epoch in range(50):
         optimizer.zero_grad()
         if epoch > 5:
             t0 = time.time()
