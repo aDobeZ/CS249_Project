@@ -103,7 +103,7 @@ def process_cora(root_path):
 
     #Construct graph from raw data.
     # paper_author
-    paper_author_src, paper_author_dst = parse_edge_index_file('paper', 'auther', os.path.join(data_path, 'PA.txt'))
+    paper_author_src, paper_author_dst = parse_edge_index_file('paper', 'author', os.path.join(data_path, 'PA.txt'))
 
     # paper_term
     paper_term_src, paper_term_dst = parse_edge_index_file('paper', 'term', os.path.join(data_path, 'PT.txt'))
