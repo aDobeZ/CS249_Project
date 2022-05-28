@@ -44,7 +44,7 @@ def main(args):
         category = "paper"
     elif args.dataset == 'dblp':
         dataloader = dblp_loader
-        category = "paper"
+        category = "author"
     else:
         raise ValueError()
 
