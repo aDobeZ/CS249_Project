@@ -123,7 +123,7 @@ def process_DBLP(root_path):
     print("Graph constructed.")
 
     # Split data into train/eval/test
-    train_category = "paper"
+    train_category = "author"
     all_y_index, all_y_new_index, all_y_label, class_num = \
             parse_label_index_file(train_category, os.path.join(data_path, train_category + '_label.txt'))
     train_y_index = parse_set_split_file(train_category, os.path.join(data_path, train_category + '_label_train_idx.txt'))

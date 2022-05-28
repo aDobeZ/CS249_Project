@@ -19,29 +19,28 @@ from rewards_RGCN import *
 from utils2 import *
 from RGCN_baseline import *
 np.set_printoptions(threshold=sys.maxsize)
-from os.path import dirname, abspath, join
 
 from os.path import dirname, abspath, join
 import sys
 ROOT_PATH = dirname(dirname(abspath(__file__)))
 DATA_PATH = join(ROOT_PATH, "data")
 sys.path.insert(0, ROOT_PATH)
-from data import movielens_loader, cora_loader
+from data import movielens_loader, cora_loader, dblp_loader
 
 def plot_figure(idx_lst, stats_record, col_nums, label):
-    fig = plt.figure()
-    sns.lineplot(idx_lst, stats_record[:, col_nums[0]])
-    sns.lineplot(idx_lst, stats_record[:, col_nums[1]])
-    sns.lineplot(idx_lst, stats_record[:, col_nums[2]])
-    plt.xlabel("Epoch")
-    plt.ylabel(label)
-    plt.legend(["Train" + label, "Val" + label, "Test" + label])
-    plt.show()
-    fig.savefig(args.dataset + "_" + label + "_curve_with_AL.pdf")
+	fig = plt.figure()
+	sns.lineplot(idx_lst, stats_record[:, col_nums[0]])
+	sns.lineplot(idx_lst, stats_record[:, col_nums[1]])
+	sns.lineplot(idx_lst, stats_record[:, col_nums[2]])
+	plt.xlabel("Epoch")
+	plt.ylabel(label)
+	plt.legend(["Train" + label, "Val" + label, "Test" + label])
+	plt.show()
+	fig.savefig(args.dataset + "_" + label + "_curve_with_AL.pdf")
 
 def main(args):
 
-    # load graph data
+	# load graph data
 	if args.dataset == "movielens":
 		dataloader = movielens_loader
 		category = "movie"
@@ -54,6 +53,12 @@ def main(args):
 		dataset = 'Cora'
 		min_index = 24961
 		batch = 80
+	elif args.dataset == 'dblp':
+	    dataloader = dblp_loader
+	    category = "author"
+	    dataset = 'DBLP_four_area'
+	    min_index = 0
+	    batch = 80
 	else:
 		raise ValueError()
 
@@ -147,34 +152,34 @@ def main(args):
 	print("best baseline:\n", np.array(best_baseline))
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='RGCN')
-    parser.add_argument("--dropout", type=float, default=0.5,
-            help="dropout probability")
-    parser.add_argument("--n-hidden", type=int, default=16,
-            help="number of hidden units")
-    parser.add_argument("--gpu", type=int, default=-1,
-            help="gpu")
-    parser.add_argument("--lr", type=float, default=1e-2,
-            help="learning rate")
-    parser.add_argument("--n-bases", type=int, default=-1,
-            help="number of filter weight matrices, default: -1 [use all]")
-    parser.add_argument("--n-layers", type=int, default=2,
-            help="number of propagation rounds")
-    parser.add_argument("-e", "--n-epochs", type=int, default=50,
-            help="number of training epochs")
-    parser.add_argument("-d", "--dataset", type=str, required=True,
-            help="dataset to use")
-    parser.add_argument("--model_path", type=str, default=None,
-            help='path for save the model')
-    parser.add_argument("--l2norm", type=float, default=0,
-            help="l2 norm coef")
-    parser.add_argument("--use-self-loop", default=False, action='store_true',
-            help="include self feature as a special relation")
-    fp = parser.add_mutually_exclusive_group(required=False)
-    fp.add_argument('--validation', dest='validation', action='store_true')
-    fp.add_argument('--testing', dest='validation', action='store_false')
-    parser.set_defaults(validation=True)
+	parser = argparse.ArgumentParser(description='RGCN')
+	parser.add_argument("--dropout", type=float, default=0.5,
+			help="dropout probability")
+	parser.add_argument("--n-hidden", type=int, default=16,
+			help="number of hidden units")
+	parser.add_argument("--gpu", type=int, default=-1,
+			help="gpu")
+	parser.add_argument("--lr", type=float, default=1e-2,
+			help="learning rate")
+	parser.add_argument("--n-bases", type=int, default=-1,
+			help="number of filter weight matrices, default: -1 [use all]")
+	parser.add_argument("--n-layers", type=int, default=2,
+			help="number of propagation rounds")
+	parser.add_argument("-e", "--n-epochs", type=int, default=50,
+			help="number of training epochs")
+	parser.add_argument("-d", "--dataset", type=str, required=True,
+			help="dataset to use")
+	parser.add_argument("--model_path", type=str, default=None,
+			help='path for save the model')
+	parser.add_argument("--l2norm", type=float, default=0,
+			help="l2 norm coef")
+	parser.add_argument("--use-self-loop", default=False, action='store_true',
+			help="include self feature as a special relation")
+	fp = parser.add_mutually_exclusive_group(required=False)
+	fp.add_argument('--validation', dest='validation', action='store_true')
+	fp.add_argument('--testing', dest='validation', action='store_false')
+	parser.set_defaults(validation=True)
 
-    args = parser.parse_args()
-    print(args)
-    main(args)
+	args = parser.parse_args()
+	print(args)
+	main(args)
