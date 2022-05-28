@@ -8,6 +8,8 @@ import time
 import torch as th
 import torch.nn as nn
 import torch.nn.functional as F
+import matplotlib.pyplot as plt
+import seaborn as sns
 from dgl.data.rdf import AIFBDataset, MUTAGDataset, BGSDataset, AMDataset
 from model import EntityClassify
 import sys
@@ -15,6 +17,7 @@ from RGCN_train import RGCN_train
 from active_select_RGCN import *
 from rewards_RGCN import *
 from utils2 import *
+from RGCN_baseline import *
 np.set_printoptions(threshold=sys.maxsize)
 from os.path import dirname, abspath, join
 
@@ -25,6 +28,17 @@ DATA_PATH = join(ROOT_PATH, "data")
 sys.path.insert(0, ROOT_PATH)
 from data import movielens_loader, cora_loader
 
+def plot_figure(idx_lst, stats_record, col_nums, label):
+    fig = plt.figure()
+    sns.lineplot(idx_lst, stats_record[:, col_nums[0]])
+    sns.lineplot(idx_lst, stats_record[:, col_nums[1]])
+    sns.lineplot(idx_lst, stats_record[:, col_nums[2]])
+    plt.xlabel("Epoch")
+    plt.ylabel(label)
+    plt.legend(["Train" + label, "Val" + label, "Test" + label])
+    plt.show()
+    fig.savefig(args.dataset + "_" + label + "_curve_with_AL.pdf")
+
 def main(args):
 
     # load graph data
@@ -32,10 +46,14 @@ def main(args):
 		dataloader = movielens_loader
 		category = "movie"
 		dataset = 'MovieLens'
+		min_index = 0
+		batch = 20
 	elif args.dataset == 'cora':
 		dataloader = cora_loader
 		category = "paper"
 		dataset = 'Cora'
+		min_index = 24961
+		batch = 80
 	else:
 		raise ValueError()
 
@@ -48,7 +66,9 @@ def main(args):
 	val_idx = th.from_numpy(pool_index[num_pool_nodes:num_train_nodes])
 	test_idx = th.from_numpy(np.array(test_y_index[0]))
 	pool_index = pool_index[0:num_pool_nodes].tolist()
-	
+	for index, value in enumerate(pool_index):
+		pool_index[index] += min_index
+
 	labels = th.from_numpy(all_y_label)
 	soft_function = nn.Softmax(dim=1)
 	
@@ -56,9 +76,9 @@ def main(args):
 	node_objects, features, network_objects, all_y_index, all_y_label, \
 	pool_y_index, test_y_index, class_num, all_node_num, new_adj, old_adj = load_data(dataset)
 	importance, degree = node_importance_degree(node_objects, old_adj, all_node_num)
+	print("adj_shape:\t", old_adj.shape)
 
 	# preprocess train index
-	batch = 20
 	maxIter = int(num_pool_nodes / batch)
 	if maxIter > 40: 
 		maxIter = 40
@@ -66,6 +86,7 @@ def main(args):
 	# define parameters
 	outs_train = []
 	train_idx = []
+	rgcn_idx = []
 	outs_new = []
 	outs_old = []
 	rewards = {'centrality': [1], 'entropy': [1], 'density': [1]}
@@ -74,7 +95,10 @@ def main(args):
 	idx_select_centrality = []
 	idx_select_entropy = []
 	idx_select_density = []
-
+	record = np.zeros((1, 6))
+	best_active = []
+	baseline_record = np.zeros((1, 6))
+	best_baseline = []
 	for iter_num in range(maxIter):
 		print("current iteration: \t", iter_num + 1)
 		if iter_num == 0:
@@ -87,24 +111,46 @@ def main(args):
 		print("select index length:\t", len(idx_select))
 		print("idx_select:\t", idx_select)
 		pool_index = list(set(pool_index) - set(idx_select))
-		train_idx = train_idx + idx_select
+		train_idx += idx_select
+		for index in idx_select:
+			rgcn_idx.append(index - min_index)
 		print("train index length:\t", len(train_idx))
 		print("train index:\t", train_idx)
-		logits = RGCN_train(args, th.from_numpy(np.asarray(train_idx)), val_idx, test_idx, labels, g, class_num)
+		print("rgcn index: \t", rgcn_idx)
+		logits, new_record, best_result = RGCN_train(args, th.from_numpy(np.asarray(rgcn_idx)), val_idx, test_idx, labels, g, class_num)
+		best_active.append(best_result)
+		record = np.concatenate((record, np.array(new_record)), axis=0)
 		outs_train = logits.detach().numpy()
 		outs_old = outs_new
 		outs_new = soft_function(logits)
 		outs_new = outs_new.detach().numpy()
 		# compute rewards after the 1st iteration
+		base_record, base_best = RGCN_baseline(args, pool_index, len(rgcn_idx), min_index, val_idx, test_idx, labels, g, class_num)
+		baseline_record = np.concatenate((baseline_record, np.array(base_record)), axis=0)
+		best_baseline.append(base_best)
 		if iter_num > 0:
 			rewards = measure_rewards(outs_new, outs_old, rewards, old_adj, idx_select, idx_select_centrality, idx_select_entropy, idx_select_density)
-
+	
+	print("iteration end")
+	record = record[1:]
+	baseline_record = baseline_record[1:]
+	# for iter_num in range(1, 11):
+	# 	base_record, base_best = RGCN_baseline(args, th.from_numpy(np.asarray(rgcn_idx)), val_idx, test_idx, labels, g, class_num)
+	# 	baseline_record = np.concatenate((baseline_record, np.array(base_record)), axis=0)
+	# 	best_baseline.append(base_best)
+	idx = [i for i in range(record.shape[0])]
+	plot_figure(idx, record, [0, 2, 4], "Accuracy")
+	plot_figure(idx, record, [1, 3, 5], "Loss")
+	print("ActiveRGCN record shape:\t\t", record.shape)
+	print("RGCNbaseline record shape:\t", np.array(baseline_record).shape)
+	print("best active:\n", np.array(best_active))
+	print("best baseline:\n", np.array(best_baseline))
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='RGCN')
     parser.add_argument("--dropout", type=float, default=0.5,
             help="dropout probability")
-    parser.add_argument("--n-hidden", type=int, default=3,
+    parser.add_argument("--n-hidden", type=int, default=16,
             help="number of hidden units")
     parser.add_argument("--gpu", type=int, default=-1,
             help="gpu")
@@ -114,7 +160,7 @@ if __name__ == '__main__':
             help="number of filter weight matrices, default: -1 [use all]")
     parser.add_argument("--n-layers", type=int, default=2,
             help="number of propagation rounds")
-    parser.add_argument("-e", "--n-epochs", type=int, default=200,
+    parser.add_argument("-e", "--n-epochs", type=int, default=50,
             help="number of training epochs")
     parser.add_argument("-d", "--dataset", type=str, required=True,
             help="dataset to use")
