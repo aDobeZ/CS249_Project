@@ -1,9 +1,11 @@
 import numpy as np
 import scipy.sparse as sp
-
+from os.path import dirname, abspath, join
+ROOT_PATH = dirname(dirname(abspath(__file__)))
 
 def parse_node_index_file(filename):
     """Parse node index file."""
+    filename = join(ROOT_PATH, filename)
     with open(filename, 'r') as file_to_read:
         readers = file_to_read.read().splitlines()
     index = []
@@ -16,6 +18,7 @@ def parse_node_index_file(filename):
 
 def parse_edge_index_file(filename):
     """Parse edge index file."""
+    filename = join(ROOT_PATH, filename)
     with open(filename, 'r') as file_to_read:
         reader = file_to_read.read().splitlines()
     new_data = []
@@ -44,6 +47,7 @@ def parse_edge_index_file(filename):
 
 def parse_label_index_file(filename):
     """Parse label index file."""
+    filename = join(ROOT_PATH, filename)
     with open(filename, 'r') as file_to_read:
         reader = file_to_read.read().splitlines()
     node_index = []
@@ -165,7 +169,7 @@ def load_data(dataset_str):
     all_y_label = np.array(all_y_label)
 
     for index in range(len(train_label_index)):
-        train_index = np.loadtxt("data/{}/{}".format(dataset_str, train_label_index[index]))
+        train_index = np.loadtxt(join(ROOT_PATH,"data/{}/{}".format(dataset_str, train_label_index[index])))
         """
         train_index: numpy.array
         """
@@ -175,7 +179,7 @@ def load_data(dataset_str):
             train_y_index = train_index
     train_y_index = train_y_index.astype(int)
     for index in range(len(test_label_index)):
-        test_index = np.loadtxt("data/{}/{}".format(dataset_str, test_label_index[index]))
+        test_index = np.loadtxt(join(ROOT_PATH,"data/{}/{}".format(dataset_str, test_label_index[index])))
         if len(test_y_index) > 0:
             test_y_index = np.hstack((test_y_index, test_index))
         else:

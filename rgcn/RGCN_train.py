@@ -37,6 +37,9 @@ def RGCN_train(args, train_idx, val_idx, test_idx, labels, g, num_classes):
     elif args.dataset == 'cora':
         category = "paper"
         others = ['author', 'paper', 'term']
+    elif args.dataset == 'dblp':
+        category = "author"
+        others = ['author', 'conf', 'paper', 'term']
     else:
         raise ValueError()
     print("others:\t", others)

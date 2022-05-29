@@ -21,7 +21,7 @@ import sys
 ROOT_PATH = dirname(dirname(abspath(__file__)))
 DATA_PATH = join(ROOT_PATH, "data")
 sys.path.insert(0, ROOT_PATH)
-from data import movielens_loader, cora_loader
+from data import movielens_loader, cora_loader, dblp_loader
 
 def plot_figure(idx_lst, stats_record, row_nums, label):
     fig = plt.figure()
@@ -42,6 +42,9 @@ def main(args):
     elif args.dataset == 'cora':
         dataloader = cora_loader
         category = "paper"
+    elif args.dataset == 'dblp':
+        dataloader = dblp_loader
+        category = "author"
     else:
         raise ValueError()
 

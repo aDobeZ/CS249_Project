@@ -29,7 +29,6 @@ def parse_edge_index_file(src_name, dst_name, filename):
     return src, dst
 
 
-
 def parse_label_index_file(name, filename):
     """Parse label index file."""
     with open(filename, 'r') as file_to_read:
@@ -75,8 +74,8 @@ def parse_set_split_file(name, filename):
         indices.append(th.from_numpy(new_index.astype(int)))
     return indices
 
-def process_cora(root_path):
-    """ cora dataset process
+def process_DBLP(root_path):
+    """ DBLP dataset process
 
         Parameters
         ----------
@@ -97,35 +96,37 @@ def process_cora(root_path):
             A list of test_index in tensor format. Each tensor acts like test_index in entity_classify.py
         """
 
-    data_path = os.path.join(root_path, 'Cora')
+    data_path = os.path.join(root_path, 'DBLP_four_area')
     if not (os.path.exists(data_path)):
-        print('Can not find cora in {}, please download the dataset first.'.format(data_path))
+        print('Can not find DBLP_four_area in {}, please download the dataset first.'.format(data_path))
 
     #Construct graph from raw data.
     # paper_author
-    paper_author_src, paper_author_dst = parse_edge_index_file('paper', 'author', os.path.join(data_path, 'PA.txt'))
+    paper_author_src, paper_author_dst = parse_edge_index_file('paper', 'author', os.path.join(data_path, 'paper_author.txt'))
+
+    # paper_conf
+    paper_conf_src, paper_conf_dst = parse_edge_index_file('paper', 'conf', os.path.join(data_path, 'paper_conf.txt'))
 
     # paper_term
-    paper_term_src, paper_term_dst = parse_edge_index_file('paper', 'term', os.path.join(data_path, 'PT.txt'))
+    paper_term_src, paper_term_dst = parse_edge_index_file('paper', 'term', os.path.join(data_path, 'paper_term.txt'))
 
-    # paper_paper
-    paper_paper_src, paper_paper_dst = parse_edge_index_file('paper', 'paper', os.path.join(data_path, 'PP.txt'))
 
     #build graph
     hg = dgl.heterograph({
         ('paper', 'pa', 'author') : (paper_author_src, paper_author_dst),
         ('author', 'ap', 'paper') : (paper_author_dst, paper_author_src),
-        ('paper', 'pt', 'term') : (paper_term_src, paper_term_dst),
-        ('term', 'tp', 'paper') : (paper_term_dst, paper_term_src),
-        ('paper', 'pp1', 'paper') : (paper_paper_src, paper_paper_dst), 
-        ('paper', 'pp2', 'paper') : (paper_paper_dst, paper_paper_src)})
+        ('paper', 'pc', 'conf') : (paper_conf_src, paper_conf_dst),
+        ('conf', 'cp', 'paper') : (paper_conf_dst, paper_conf_src),
+        ('paper', 'pt', 'term') : (paper_term_src, paper_term_dst), 
+        ('term', 'tp', 'paper') : (paper_term_dst, paper_term_src)})
 
     print("Graph constructed.")
 
     # Split data into train/eval/test
+    train_category = "author"
     all_y_index, all_y_new_index, all_y_label, class_num = \
-            parse_label_index_file('paper', os.path.join(data_path, 'paper_label.txt'))
-    train_y_index = parse_set_split_file('paper', os.path.join(data_path, 'paper_label_train_idx.txt'))
-    test_y_index = parse_set_split_file('paper', os.path.join(data_path, 'paper_label_test_idx.txt'))
+            parse_label_index_file(train_category, os.path.join(data_path, train_category + '_label.txt'))
+    train_y_index = parse_set_split_file(train_category, os.path.join(data_path, train_category + '_label_train_idx.txt'))
+    test_y_index = parse_set_split_file(train_category, os.path.join(data_path, train_category + '_label_test_idx.txt'))
 
     return hg, all_y_index, all_y_label, train_y_index, test_y_index, class_num
