@@ -191,7 +191,19 @@ def active_select(outs_train, outs_new, all_adj, pool_idx, all_node_num, topb, i
         if idx in density_sort_idx_topb:
             find_idx = density_sort_idx_topb.index(idx)
             density_score = borda_count[find_idx]
-        rewards[i] = centrality_reward * centrality_score + entropy_reward * entropy_score + density_reward * density_score
+        
+        # 添加参数args.set 
+        if args.set == 'score1':
+            rewards[i] = centrality_reward * centrality_score
+        elif args.set == 'score2':
+            rewards[i] = entropy_reward * entropy_score
+        elif args.set == 'score3':
+            rewards[i] = density_reward * density_score
+        elif args.set == '111':
+            rewards[i] = centrality_reward * 0.33 + entropy_reward * 0.33 + density_reward * 0.33
+        else:
+            rewards[i] = centrality_reward * centrality_score + entropy_reward * entropy_score + density_reward * density_score
+
     rewards_sort_idx = np.argsort(-rewards)
     rewards_sort_idx_topb = rewards_sort_idx[0:topb + 1]
     all_idx = np.array(all_idx)
