@@ -1,0 +1,80 @@
+Namespace(batch=40, dataset='cora', dropout=0.5, gpu=0, iteration=4, l2norm=0, lr=0.01, model_path=None, n_bases=-1, n_epochs=50, n_hidden=16, n_layers=2, set='ori', use_self_loop=False, validation=False)
+Graph constructed.
+adj_shape:	 (56670, 56670)
+current iteration: 	 1
+select index num:	 40
+ActiveRGCN train index num:	 40
+others:	 ['author', 'paper', 'term']
+start training...
+
+Best Model -- Test Acc: 0.4571 | Test loss: 1.8024
+cat_name:	 author 	 shape:	 torch.Size([24961, 10])
+cat_name:	 paper 	 shape:	 torch.Size([44357, 10])
+cat_name:	 term 	 shape:	 torch.Size([56670, 10])
+new_logits_shape: torch.Size([56670, 10])
+
+RGCN baseline train index num:	 40
+start training...
+Best Model -- Test Acc: 0.4061 | Test loss: 1.9037
+
+current iteration: 	 2
+select index num:	 41
+ActiveRGCN train index num:	 81
+others:	 ['author', 'paper', 'term']
+start training...
+
+Best Model -- Test Acc: 0.5437 | Test loss: 1.7261
+cat_name:	 author 	 shape:	 torch.Size([24961, 10])
+cat_name:	 paper 	 shape:	 torch.Size([44357, 10])
+cat_name:	 term 	 shape:	 torch.Size([56670, 10])
+new_logits_shape: torch.Size([56670, 10])
+
+RGCN baseline train index num:	 81
+start training...
+Best Model -- Test Acc: 0.5342 | Test loss: 1.5514
+
+current iteration: 	 3
+select index num:	 41
+ActiveRGCN train index num:	 122
+others:	 ['author', 'paper', 'term']
+start training...
+
+Best Model -- Test Acc: 0.5665 | Test loss: 1.4741
+cat_name:	 author 	 shape:	 torch.Size([24961, 10])
+cat_name:	 paper 	 shape:	 torch.Size([44357, 10])
+cat_name:	 term 	 shape:	 torch.Size([56670, 10])
+new_logits_shape: torch.Size([56670, 10])
+
+RGCN baseline train index num:	 122
+start training...
+Best Model -- Test Acc: 0.5278 | Test loss: 1.5756
+
+current iteration: 	 4
+select index num:	 41
+ActiveRGCN train index num:	 163
+others:	 ['author', 'paper', 'term']
+start training...
+
+Best Model -- Test Acc: 0.5950 | Test loss: 1.4243
+cat_name:	 author 	 shape:	 torch.Size([24961, 10])
+cat_name:	 paper 	 shape:	 torch.Size([44357, 10])
+cat_name:	 term 	 shape:	 torch.Size([56670, 10])
+new_logits_shape: torch.Size([56670, 10])
+
+RGCN baseline train index num:	 163
+start training...
+Best Model -- Test Acc: 0.5535 | Test loss: 1.4584
+
+iteration end
+ActiveRGCN record shape:		 (200, 6)
+RGCNbaseline record shape:	 (200, 6)
+best active:
+ [[1.         0.03648769 0.44861963 1.79501033 0.45711364 1.8023597 ]
+ [0.97530864 0.02617048 0.54984663 1.69658661 0.54365333 1.72612071]
+ [1.         0.02335966 0.57617587 1.43420374 0.56653458 1.47407472]
+ [0.99386503 0.02806992 0.60250511 1.39265335 0.59504027 1.42432785]]
+best baseline:
+ [[0.95       0.01987013 0.39698364 1.91498256 0.40611019 1.90373814]
+ [1.         0.00516657 0.52275051 1.5734396  0.53419404 1.55139804]
+ [1.         0.00735225 0.525818   1.58499527 0.52780263 1.57555294]
+ [1.         0.01775265 0.56365031 1.42541969 0.5534961  1.45842552]]

@@ -27,9 +27,6 @@ DATA_PATH = join(ROOT_PATH, "data")
 sys.path.insert(0, ROOT_PATH)
 import copy
 from data import movielens_loader, cora_loader, dblp_loader
-import warnings
-warnings.filterwarnings("ignore")
-
 
 def plot_figure(idx_lst, stats_record, col_nums, label):
 	fig = plt.figure()

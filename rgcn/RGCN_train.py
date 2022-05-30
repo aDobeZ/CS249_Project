@@ -6,8 +6,6 @@ from model import EntityClassify
 import sys
 np.set_printoptions(threshold=sys.maxsize)
 import copy
-import warnings
-warnings.filterwarnings("ignore")
 
 def RGCN_train(args, train_idx, val_idx, test_idx, labels, g, num_classes):
     # check cuda
@@ -44,7 +42,7 @@ def RGCN_train(args, train_idx, val_idx, test_idx, labels, g, num_classes):
         others = ['author', 'conf', 'paper', 'term']
     else:
         raise ValueError()
-    print("others:\t", others)
+    # print("others:\t", others)
 
     # optimizer
     optimizer = th.optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.l2norm)
@@ -104,11 +102,11 @@ def RGCN_train(args, train_idx, val_idx, test_idx, labels, g, num_classes):
     # 对于cora缺少edge的特殊处理
     if args.dataset == 'cora':
         new_logits = th.cat((new_logits, th.zeros(7550, num_classes)), 0)
-    print("cat_name:\t", others[0], "\t shape:\t", new_logits.shape)
+    # print("cat_name:\t", others[0], "\t shape:\t", new_logits.shape)
     for index in range(1, len(others)):
         new_logits = th.cat((new_logits, result[others[index]]), 0)
-        print("cat_name:\t", others[index], "\t shape:\t", new_logits.shape)
+        # print("cat_name:\t", others[index], "\t shape:\t", new_logits.shape)
 
-    print("new_logits_shape:", new_logits.shape)
+    # print("new_logits_shape:", new_logits.shape)
     print()
     return new_logits, record, best_result
