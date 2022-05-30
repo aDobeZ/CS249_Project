@@ -46,19 +46,19 @@ def main(args):
 		category = "movie"
 		dataset = 'MovieLens'
 		min_index = 0
-		batch = 20
+		batch = args.batch
 	elif args.dataset == 'cora':
 		dataloader = cora_loader
 		category = "paper"
 		dataset = 'Cora'
 		min_index = 24961
-		batch = 80
+		batch = args.batch
 	elif args.dataset == 'dblp':
 	    dataloader = dblp_loader
 	    category = "author"
 	    dataset = 'DBLP_four_area'
 	    min_index = 0
-	    batch = 80
+	    batch = args.batch
 	else:
 		raise ValueError()
 
@@ -84,9 +84,7 @@ def main(args):
 	print("adj_shape:\t", old_adj.shape)
 
 	# preprocess train index
-	maxIter = int(num_pool_nodes / batch)
-	if maxIter > 40: 
-		maxIter = 40
+	maxIter = args.iteration
 
 	# define parameters
 	outs_train = []
@@ -176,6 +174,10 @@ if __name__ == '__main__':
 	parser.add_argument("--use-self-loop", default=False, action='store_true',
 			help="include self feature as a special relation")
 	parser.add_argument("--set", type=str, default='ori', help="setting of score function")
+	parser.add_argument("--batch", type=int, default=20,
+			help="set batch size")
+	parser.add_argument("--iteration", type=int, default=40,
+			help="set iteration number")
 	fp = parser.add_mutually_exclusive_group(required=False)
 	fp.add_argument('--validation', dest='validation', action='store_true')
 	fp.add_argument('--testing', dest='validation', action='store_false')
