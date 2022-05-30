@@ -153,8 +153,8 @@ def main(args):
 	print("best baseline:\n", base)
 	db_active = pd.DataFrame({'iter_num':iter_array, 'train_acc': active[:, 0], 'train_loss': active[:, 1], 'val_acc': active[:, 2], 'val_loss': active[:, 3], 'test_acc': active[:, 4], 'test_loss': active[:, 5]})
 	db_base = pd.DataFrame({'iter_num':iter_array, 'train_acc': base[:, 0], 'train_loss': base[:, 1], 'val_acc': base[:, 2], 'val_loss': base[:, 3], 'test_acc': base[:, 4], 'test_loss': base[:, 5]})
-	path1 = './exp_data/' + 'ActiveRGCN_' + args.dataset + '_' + str(args.iteration) + '_' + str(args.batch) + '_' + args.set + '.csv'
-	path2 = './exp_data/' + 'RGCN_' + args.dataset + '_' + str(args.iteration) + '_' + str(args.batch) + '_' + args.set + '.csv'
+	path1 = './exp_data/' + 'ActiveRGCN_' + args.dataset + '_iter' + str(args.iteration) + '_b' + str(args.batch) + '_' + args.set + '.csv'
+	path2 = './exp_data/' + 'RGCN_' + args.dataset + '_iter' + str(args.iteration) + '_b' + str(args.batch) + '_' + args.set + '.csv'
 	db_active.to_csv(path1, index=False)
 	db_base.to_csv(path2, index=False)
 
