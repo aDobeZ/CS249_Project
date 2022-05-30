@@ -175,6 +175,7 @@ if __name__ == '__main__':
 			help="l2 norm coef")
 	parser.add_argument("--use-self-loop", default=False, action='store_true',
 			help="include self feature as a special relation")
+	parser.add_argument("--set", type=str, default='ori', help="setting of score function")
 	fp = parser.add_mutually_exclusive_group(required=False)
 	fp.add_argument('--validation', dest='validation', action='store_true')
 	fp.add_argument('--testing', dest='validation', action='store_false')

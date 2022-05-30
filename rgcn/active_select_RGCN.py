@@ -193,15 +193,15 @@ def active_select(outs_train, outs_new, all_adj, pool_idx, all_node_num, topb, i
             density_score = borda_count[find_idx]
         
         # 添加参数args.set 
-        if args.set == 'score1':
+        if args.set == 'NC':
             rewards[i] = centrality_reward * centrality_score
-        elif args.set == 'score2':
+        elif args.set == 'CIE':
             rewards[i] = entropy_reward * entropy_score
-        elif args.set == 'score3':
+        elif args.set == 'CID':
             rewards[i] = density_reward * density_score
-        elif args.set == '111':
+        elif args.set == 'norm':
             rewards[i] = centrality_reward * 0.33 + entropy_reward * 0.33 + density_reward * 0.33
-        else:
+        elif args.set == 'ori'::
             rewards[i] = centrality_reward * centrality_score + entropy_reward * entropy_score + density_reward * density_score
 
     rewards_sort_idx = np.argsort(-rewards)
