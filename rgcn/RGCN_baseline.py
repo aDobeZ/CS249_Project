@@ -39,6 +39,7 @@ def RGCN_baseline(args, pool_index, train_num, min_index, val_idx, test_idx, lab
     train_idx = pool_index[0: train_num]
     train_idx = [idx - min_index for idx in train_idx]
     print("RGCN baseline train index num:\t", len(train_idx))
+    print("baseline index:\n", train_idx)
     use_cuda = args.gpu >= 0 and th.cuda.is_available()
     if use_cuda:
         th.cuda.set_device(args.gpu)

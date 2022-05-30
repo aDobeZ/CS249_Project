@@ -120,7 +120,7 @@ def main(args):
 			rgcn_idx.append(index - min_index)
 		print("ActiveRGCN train index num:\t", len(train_idx))
 		# print("train index:\t", train_idx)
-		# print("rgcn index: \t", rgcn_idx)
+		print("rgcn index: \t", rgcn_idx)
 		logits, new_record, best_result = RGCN_train(args, th.from_numpy(np.asarray(rgcn_idx)), val_idx, test_idx, labels, g, class_num)
 		best_active.append(best_result)
 		record = np.concatenate((record, np.array(new_record)), axis=0)
