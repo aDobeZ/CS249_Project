@@ -14,6 +14,8 @@ import sys
 import copy
 import random
 np.set_printoptions(threshold=sys.maxsize)
+import warnings
+warnings.filterwarnings("ignore")
 
 from os.path import dirname, abspath, join
 import sys

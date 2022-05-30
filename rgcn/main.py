@@ -19,7 +19,7 @@ from rewards_RGCN import *
 from utils2 import *
 from RGCN_baseline import *
 np.set_printoptions(threshold=sys.maxsize)
-
+import pandas as pd
 from os.path import dirname, abspath, join
 import sys
 ROOT_PATH = dirname(dirname(abspath(__file__)))
@@ -27,6 +27,9 @@ DATA_PATH = join(ROOT_PATH, "data")
 sys.path.insert(0, ROOT_PATH)
 import copy
 from data import movielens_loader, cora_loader, dblp_loader
+import warnings
+warnings.filterwarnings("ignore")
+
 
 def plot_figure(idx_lst, stats_record, col_nums, label):
 	fig = plt.figure()
@@ -138,17 +141,22 @@ def main(args):
 	print("iteration end")
 	record = record[1:]
 	baseline_record = baseline_record[1:]
-	# for iter_num in range(1, 11):
-	# 	base_record, base_best = RGCN_baseline(args, th.from_numpy(np.asarray(rgcn_idx)), val_idx, test_idx, labels, g, class_num)
-	# 	baseline_record = np.concatenate((baseline_record, np.array(base_record)), axis=0)
-	# 	best_baseline.append(base_best)
-	idx = [i for i in range(record.shape[0])]
-	plot_figure(idx, record, [0, 2, 4], "Accuracy")
-	plot_figure(idx, record, [1, 3, 5], "Loss")
+	# idx = [i for i in range(record.shape[0])]
+	# plot_figure(idx, record, [0, 2, 4], "Accuracy")
+	# plot_figure(idx, record, [1, 3, 5], "Loss")
 	print("ActiveRGCN record shape:\t\t", record.shape)
 	print("RGCNbaseline record shape:\t", np.array(baseline_record).shape)
-	print("best active:\n", np.array(best_active))
-	print("best baseline:\n", np.array(best_baseline))
+	active = np.array(best_active)
+	base = np.array(best_baseline)
+	iter_array = np.arange(1, args.iteration + 1)
+	print("best active:\n", active)
+	print("best baseline:\n", base)
+	db_active = pd.DataFrame({'iter_num':iter_array, 'train_acc': active[:, 0], 'train_loss': active[:, 1], 'val_acc': active[:, 2], 'val_loss': active[:, 3], 'test_acc': active[:, 4], 'test_loss': active[:, 5]})
+	db_base = pd.DataFrame({'iter_num':iter_array, 'train_acc': base[:, 0], 'train_loss': base[:, 1], 'val_acc': base[:, 2], 'val_loss': base[:, 3], 'test_acc': base[:, 4], 'test_loss': base[:, 5]})
+	path1 = './exp_data/' + 'ActiveRGCN_' + args.dataset + '_' + str(args.iteration) + '_' + str(args.batch) + '_' + args.set + '.csv'
+	path2 = './exp_data/' + 'RGCN_' + args.dataset + '_' + str(args.iteration) + '_' + str(args.batch) + '_' + args.set + '.csv'
+	db_active.to_csv(path1, index=False)
+	db_base.to_csv(path2, index=False)
 
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser(description='RGCN')

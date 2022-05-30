@@ -6,6 +6,8 @@ from model import EntityClassify
 import sys
 np.set_printoptions(threshold=sys.maxsize)
 import copy
+import warnings
+warnings.filterwarnings("ignore")
 
 def RGCN_train(args, train_idx, val_idx, test_idx, labels, g, num_classes):
     # check cuda
