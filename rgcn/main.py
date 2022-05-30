@@ -113,7 +113,7 @@ def main(args):
 		else:
 			idx_select, idx_select_centrality, idx_select_entropy, idx_select_density, dominates = \
 			active_select(outs_train, outs_new, old_adj, pool_index, all_node_num, batch, importance, degree, rewards,
-							class_num, iter_num, dominates)
+							class_num, iter_num, dominates, args)
 		# idx_select = idx_select.tolist()
 		print("select index length:\t", len(idx_select))
 		print("idx_select:\t", idx_select)

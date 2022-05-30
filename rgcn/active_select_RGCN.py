@@ -97,7 +97,7 @@ def node_density(embeddings, all_node_num, class_num):
     return density
 
 
-def active_select(outs_train, outs_new, all_adj, pool_idx, all_node_num, topb, importance, degree, rewards, class_num, iter_num, dominates):
+def active_select(outs_train, outs_new, all_adj, pool_idx, all_node_num, topb, importance, degree, rewards, class_num, iter_num, dominates, args):
     """
     combine the three selection strategies to select the most valuable topb nodes with the highest scores.
     :param outs:
