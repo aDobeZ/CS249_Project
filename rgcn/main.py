@@ -66,6 +66,7 @@ def main(args):
 	g, all_y_index, all_y_label, train_y_index, test_y_index, num_classes = dataloader(DATA_PATH)
 	pool_index = np.array(train_y_index[0])
 	num_train_nodes = len(pool_index)
+	print(num_train_nodes)
 	num_pool_nodes = int(num_train_nodes / 2)
 	# train_idx = th.from_numpy(pool_index[0:num_pool_nodes])
 	val_idx = th.from_numpy(pool_index[num_pool_nodes:num_train_nodes])
@@ -87,6 +88,7 @@ def main(args):
 	maxIter = int(num_pool_nodes / batch)
 	if maxIter > 40: 
 		maxIter = 40
+		maxIter = 1
 
 	# define parameters
 	outs_train = []
@@ -144,8 +146,8 @@ def main(args):
 	# 	baseline_record = np.concatenate((baseline_record, np.array(base_record)), axis=0)
 	# 	best_baseline.append(base_best)
 	idx = [i for i in range(record.shape[0])]
-	plot_figure(idx, record, [0, 2, 4], "Accuracy")
-	plot_figure(idx, record, [1, 3, 5], "Loss")
+	# plot_figure(idx, record, [0, 2, 4], "Accuracy")
+	# plot_figure(idx, record, [1, 3, 5], "Loss")
 	print("ActiveRGCN record shape:\t\t", record.shape)
 	print("RGCNbaseline record shape:\t", np.array(baseline_record).shape)
 	print("best active:\n", np.array(best_active))
