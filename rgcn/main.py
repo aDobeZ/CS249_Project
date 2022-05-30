@@ -25,6 +25,7 @@ import sys
 ROOT_PATH = dirname(dirname(abspath(__file__)))
 DATA_PATH = join(ROOT_PATH, "data")
 sys.path.insert(0, ROOT_PATH)
+import copy
 from data import movielens_loader, cora_loader, dblp_loader
 
 def plot_figure(idx_lst, stats_record, col_nums, label):
@@ -73,7 +74,7 @@ def main(args):
 	pool_index = pool_index[0:num_pool_nodes].tolist()
 	for index, value in enumerate(pool_index):
 		pool_index[index] += min_index
-
+	baseline_pool = copy.deepcopy(pool_index)
 	labels = th.from_numpy(all_y_label)
 	soft_function = nn.Softmax(dim=1)
 	
@@ -111,15 +112,15 @@ def main(args):
 			active_select(outs_train, outs_new, old_adj, pool_index, all_node_num, batch, importance, degree, rewards,
 							class_num, iter_num, dominates, args)
 		# idx_select = idx_select.tolist()
-		print("select index length:\t", len(idx_select))
-		print("idx_select:\t", idx_select)
+		print("select index num:\t", len(idx_select))
+		# print("idx_select:\t", idx_select)
 		pool_index = list(set(pool_index) - set(idx_select))
 		train_idx += idx_select
 		for index in idx_select:
 			rgcn_idx.append(index - min_index)
-		print("train index length:\t", len(train_idx))
-		print("train index:\t", train_idx)
-		print("rgcn index: \t", rgcn_idx)
+		print("ActiveRGCN train index num:\t", len(train_idx))
+		# print("train index:\t", train_idx)
+		# print("rgcn index: \t", rgcn_idx)
 		logits, new_record, best_result = RGCN_train(args, th.from_numpy(np.asarray(rgcn_idx)), val_idx, test_idx, labels, g, class_num)
 		best_active.append(best_result)
 		record = np.concatenate((record, np.array(new_record)), axis=0)
@@ -128,7 +129,7 @@ def main(args):
 		outs_new = soft_function(logits)
 		outs_new = outs_new.detach().numpy()
 		# compute rewards after the 1st iteration
-		base_record, base_best = RGCN_baseline(args, pool_index, len(rgcn_idx), min_index, val_idx, test_idx, labels, g, class_num)
+		base_record, base_best = RGCN_baseline(args, baseline_pool, len(rgcn_idx), min_index, val_idx, test_idx, labels, g, class_num)
 		baseline_record = np.concatenate((baseline_record, np.array(base_record)), axis=0)
 		best_baseline.append(base_best)
 		if iter_num > 0:
