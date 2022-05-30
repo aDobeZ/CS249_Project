@@ -97,7 +97,7 @@ def node_density(embeddings, all_node_num, class_num):
     return density
 
 
-def active_select(outs_train, outs_new, all_adj, pool_idx, all_node_num, topb, importance, degree, rewards, class_num, iter_num, dominates):
+def active_select(outs_train, outs_new, all_adj, pool_idx, all_node_num, topb, importance, degree, rewards, class_num, iter_num, dominates, args):
     """
     combine the three selection strategies to select the most valuable topb nodes with the highest scores.
     :param outs:
@@ -201,7 +201,7 @@ def active_select(outs_train, outs_new, all_adj, pool_idx, all_node_num, topb, i
             rewards[i] = density_reward * density_score
         elif args.set == 'norm':
             rewards[i] = centrality_reward * 0.33 + entropy_reward * 0.33 + density_reward * 0.33
-        elif args.set == 'ori'::
+        elif args.set == 'ori':
             rewards[i] = centrality_reward * centrality_score + entropy_reward * entropy_score + density_reward * density_score
 
     rewards_sort_idx = np.argsort(-rewards)
