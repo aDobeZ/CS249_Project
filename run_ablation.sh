@@ -1,4 +1,4 @@
-# Abaltion Experiments on Cora Datasete
+# Ablation Experiments on Cora Datasete
 # Setting: batch=80, iteration=40
 echo "Running Ablation Experiments"
 echo "Running nc-score"
