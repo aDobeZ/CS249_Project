@@ -37,7 +37,7 @@ Method 2:
 python ./ActiveRGCN/main.py -d dataset_name --testing --gpu 0 --iteration iteration_num --batch batch_num
 ```
 
-dataset_name options include cora, movielens, dblp. When choosing iteration_num and batch_num, please make sure that iteration_num * batch_num < train_data size (3911 for cora, 918 for movielens, 1014 for dblp). The experiment result will be auto-saved in experiment_result/exp_data_{timestamp} directory experiment log will be auto-saved in hyperparam_experiment directory.  
+`dataset_name` options include cora, movielens, dblp. When choosing iteration_num and batch_num, please make sure that `iteration_num * batch_num < train_data size` (3911 for cora, 918 for movielens, 1014 for dblp). The experiment result will be auto-saved in `experiment_result/exp_data_{timestamp}` directory experiment log will be auto-saved in `hyperparam_experiment` directory.  
 
 ### Ablation Experiments
 command: 
@@ -46,9 +46,9 @@ command:
 ./run_<dataset>_ablation.sh  
 ```
 
---set option in the shell script chooses the reward function for each experiment. Specifially, `--set norm` is the same-weight setting where each reward is assigned a 1/3 constant weight through all iterations. `--set ori` uses the original multi-armed bendit setting. `--set NC`, `--set CIE`, and `--set CID` only choose one reward score and its corresponding weight in the active select strategy.
+`--set` option in the shell script chooses the reward function for each experiment. Specifially, `--set norm` is the same-weight setting where each reward is assigned a 1/3 constant weight through all iterations. `--set ori` uses the original multi-armed bendit setting. `--set NC`, `--set CIE`, and `--set CID` only choose one reward score and its corresponding weight in the active select strategy.
 
-The experiment result will be auto-saved in experiment_result/exp_data_{timestamp} directory, experiment log will be auto-saved in ablation_experiment directory.
+The experiment result will be auto-saved in `experiment_result/exp_data_{timestamp}` directory, experiment log will be auto-saved in `ablation_experiment` directory.
 
 ### ActiveHNE Experiment
 command: 
