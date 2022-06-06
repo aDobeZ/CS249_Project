@@ -6,7 +6,7 @@ Xinyu Zhao, Hang Zhang, Haowei Jiang, Nuocheng Pan
 ### Repository Components:
 - code
 - [final slides](https://github.com/aDobeZ/CS249_Project/blob/main/249%20Final%20Project%20Presentation%20Slide.pptx)
-- report
+- [report](https://github.com/aDobeZ/CS249_Project/blob/main/249%20Final%20Project%20Report.pdf)
 - [dataset](https://github.com/aDobeZ/CS249_Project/tree/main/data)
 
 ### Environment Requirement
