@@ -113,8 +113,6 @@ def active_select(outs_train, outs_new, all_adj, pool_idx, all_node_num, topb, i
     :param dominates: a list with three elements, stores the number of nodes dominated by three arms (or selection strategies).
     :return:
     """
-    # all_adj = sp.csc_matrix.todense(all_adj)
-    # rewards = np.zeros(all_node_num)
     embeddings = outs_train
     outputs = outs_new
     centrality_rewards = rewards['centrality']
@@ -192,7 +190,6 @@ def active_select(outs_train, outs_new, all_adj, pool_idx, all_node_num, topb, i
             find_idx = density_sort_idx_topb.index(idx)
             density_score = borda_count[find_idx]
         
-        # 添加参数args.set 
         if args.set == 'NC':
             rewards[i] = centrality_reward * centrality_score
         elif args.set == 'CIE':

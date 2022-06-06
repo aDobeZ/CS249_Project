@@ -139,9 +139,6 @@ def load_data(dataset_str):
     all_new_data = []
     all_old_data = []
     feature = sp.csr_matrix(sp.eye(all_node_num))
-    # edge_index = ["movie_director.txt", "movie_tag.txt", "movie_writer.txt", "user_movie_rating.txt"]
-    # 只针对movie rating 这种会有new data, old data就是两个node之间是否有edge，有为1的matrix
-    # old_row记录row number, old_column记录column number, old data记录1，new data如果两者有rating为rating否则为1
     for index in range(len(edge_index)):
         old_row, old_col, new_data, old_data = parse_edge_index_file("data/{}/{}".format(dataset_str, edge_index[index]))
         # adjacency matrix 

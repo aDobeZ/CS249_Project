@@ -3,15 +3,12 @@ Paper: https://arxiv.org/abs/1703.06103
 Reference Code: https://github.com/tkipf/relational-gcn
 """
 import argparse
+from sqlite3 import Timestamp
 import numpy as np
-import time
 import torch as th
 import torch.nn as nn
-import torch.nn.functional as F
 import matplotlib.pyplot as plt
 import seaborn as sns
-from dgl.data.rdf import AIFBDataset, MUTAGDataset, BGSDataset, AMDataset
-from model import EntityClassify
 import sys
 from RGCN_train import RGCN_train
 from active_select_RGCN import *
@@ -26,6 +23,7 @@ ROOT_PATH = dirname(dirname(abspath(__file__)))
 DATA_PATH = join(ROOT_PATH, "data")
 sys.path.insert(0, ROOT_PATH)
 import copy
+import time
 from data import movielens_loader, cora_loader, dblp_loader
 
 def plot_figure(idx_lst, stats_record, col_nums, label):
@@ -150,8 +148,9 @@ def main(args):
 	print("best baseline:\n", base)
 	db_active = pd.DataFrame({'iter_num':iter_array, 'train_acc': active[:, 0], 'train_loss': active[:, 1], 'val_acc': active[:, 2], 'val_loss': active[:, 3], 'test_acc': active[:, 4], 'test_loss': active[:, 5]})
 	db_base = pd.DataFrame({'iter_num':iter_array, 'train_acc': base[:, 0], 'train_loss': base[:, 1], 'val_acc': base[:, 2], 'val_loss': base[:, 3], 'test_acc': base[:, 4], 'test_loss': base[:, 5]})
-	path1 = './exp_data/' + 'ActiveRGCN_' + args.dataset + '_iter' + str(args.iteration) + '_b' + str(args.batch) + '_' + args.set + '.csv'
-	path2 = './exp_data/' + 'RGCN_' + args.dataset + '_iter' + str(args.iteration) + '_b' + str(args.batch) + '_' + args.set + '.csv'
+	timestamp = int(time.time())
+	path1 = './experiment_result/exp_data/' + f'ActiveRGCN_{timestamp}_' + args.dataset + '_iter' + str(args.iteration) + '_b' + str(args.batch) + '_' + args.set + '.csv'
+	path2 = './experiment_result/exp_data/' + f'RGCN_{timestamp}_' + args.dataset + '_iter' + str(args.iteration) + '_b' + str(args.batch) + '_' + args.set + '.csv'
 	db_active.to_csv(path1, index=False)
 	db_base.to_csv(path2, index=False)
 
